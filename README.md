@@ -1,94 +1,115 @@
-# Homework Task
+# Roots and Integrals
 
-**Check out https://github.com/ubsuny/CompPhys/Calculus and generate a library `calculus.py` with functions / methods needed for Task 1 and 2**.
+This Homework is seperated into two task groups (algorithm, numerical calculation and presentation) and the same rules apply as in HW4.
+Remember you are in charge to have a review assigned if one available, also you have to finish your review 2 hours after assignment.
+Once the review is finished the original author has 12 hours to fix the issues mentionend in the review.
 
-In particular fullfill three tasks (one for each group member):
-
-**Task 1:**
+## Task group 1 algorithm (12 members per algorithm)
 Use the four integral algorithms (simpson, adaptive trapezoid, trapezoid) to create a Jupyter notebook that imports the functions from `calculus.py` and use them to calculate and plot the integral of:
+
+In common files `calculus.py` and `test_calculus.py` create functions and unit tests to calculate the integral using the following algorithm :
+- simpson
+- adaptive trapezoid
+- trapezoid
+
+Each algorithm has to be implemented in three ways.
+1. wrapper for numpy implementation (due Wednesday)
+2. pure python implementation (due Friday)
+3. c/c++ implementation using ctypes in python (due Monday)
+
+---
+
+In the same file `calculus.py` and `test_calculus.py` implement three root-finding algorithms and unit tests:
+
+- bisection
+- secant
+- tangent
+
+Each algorithm has to be implemented in three ways.
+1. wrapper for numpy implementation (due Wednesday)
+2. pure python implementation (due Friday)
+3. c/c++ implementation using ctypes in python (due Monday)
+
+---
+
+**Hint:** You can use https://github.com/ubsuny/CompPhys/blob/main/Calculus/ for examples for the C/C++ code
+
+Generate one PR per implementation.
+Review each others PR.
+
+## Task group 2 numerical calculation and presentation (max 4 members due till Monday)
+
+Calculate the following integrals (max 2 members):
 
 - $\exp(-1/x)$
 - $\cos(1/x)$
-- $x^3 + \frac 1{\textrm{GroupNumber}}$
+- $x^3 + 1$
 
-with different boundaries: 
-
-$$
-[0,10\cdot\textrm{GroupNumber}],]0,\pi\cdot\textrm{GroupNumber}],[-1,1]
-$$
-
-(Pay attention to the boundary brackets ][)
-
-Additionally, compare the accuracies (how many digits are correct) and efficiencies (how many steps does it take to reach a given accuracy).
-
-**Task 2:**
-Compare the accuracies (how many digits are correct) and efficiencies (how many steps does it take to reach a given accuracy) for any two root-finding algorithms on the two functions
+with the according boundaries: 
 
 $$
-y(x) = \tan(x) \textrm{ and}
+[0,10],(0,3\pi],[-1,1]
+$$
+
+You can only use functions from `calculus.py`.
+Compare the accuracies (how many digits are correct) and efficiencies (how many steps does it take to reach a given accuracy) for each algorithm and each implementation as it becomes available.
+Generate a figure `function_name.png` showing the function and color the area of integral to be calculated with its value for each algorithm including the number of steps inside in the figure.
+
+---
+
+Compare the accuracies (how many digits are correct) and efficiencies (how many steps does it take to reach a given accuracy) for all root-finding algorithms and implementations on the functions (max 2 members):
+
+$$
+y(x) = \frac 1 {\sin(x)} \textrm{ and}
+$$
+
+$$
+y(x) = \tanh(x) \textrm{ and}
 $$
 
 $$
 y(x) = \tanh(x).
 $$
 
-**Task 3:**
-- Compare the numpy integration functions to the ones found in compphys
-- Add missing docstrings in `calculus.py`
-- Reuse github actions for linting and unit tests for `calculus.py`
-- write unit tests for functions in `calculus.py`
-  
+You can only use functions from `calculus.py`.
+Compare the accuracies (how many digits are correct) and efficiencies (how many steps does it take to reach a given accuracy) for each algorithm and each implementation as it becomes available.
+Generate a figure `function_name.png` showing the function and mark all roots with circles for each algorithm including the number of steps inside in the figure.
+
 ---
 
-For this you have to complete the following steps:
+Generate one PR per function.
+Review each others PR.
 
-- Discuss in this repository using issues who will do which task (specified above)
-- Discuss who should be the main responsible for the repository (the one that can accept merge requests, let me know in discord so I can adjust rights)
-- Work together by generating `calculus.py` with functions for task 1 and 2 from compphys
-- Discuss and generate milestone for your project to optimize the timeline of your project
-- Discuss and generate labels for your issues
-- Fork this repository
-- Merge the necessary fies from the original homework project into your fork
-- commit
-- create merge requests for your work
-
-Also use discord for discussing solutions to any issues popping up.
-
+## Task group 4 maintainers (max 1 member)
+- Reuse github actions for linting and unit tests
+- Merge PR
+- assign Reviews after member requests
+  
+---
 ## Grading
 
 | Homework Points                  |                |              |            |
 | -------------------------------- | -------------- | ------------ | ---------- |
 |                                  |                |              |            |
-| Interaction on own project       |                |              |            |
+| Interaction on project           |                |              |            |
 | Category                         | min per person | point factor | max points |
-| Commits                          | 6              | 1            | 6          |
-| Merge requests                   | 3              | 1            | 3          |
-| Merge Accepted                   | 1              | 1            | 1          |
-| Branches                         | 2              | 0.5          | 1          |
-| Issues                           | 10             | 0.5          | 5          |
-| Closed Issues                    | 5              | 0.2          | 1          |
-| \# Conversations                 | 30             | 0.2          | 6          |
+| Commits                          | 1              | 1            | 1          |
+| Pull requests                    | 3              | 2            | 6          |
+| PR Accepted                      | 3              | 3            | 9          |
+| Other PR reviewed (by request)   | 3              | 4            | 12          |     
+| Issues                           | 0              | 0            | 0          | 
+| Closed Issues                    | 0              | 0            | 0          |
+| \# Conversations                 | 12             | 1/4          | 3          |
 |                                  |                |              |            |
-| Total                            |                |              | 23         |
+| Total                            |                |              | 31         |
 |                                  |                |              |            |
 | Shared project points            |                |              |            |
-| \# Label                         | 5              | 0.2          | 1          |
-| \# Milestones                    | 2              | 1            | 2          |
-| \# Tags                          | 0              | 1            | 0          |
+| \# Milestones                    | 12             | 1/4          | 3          |
 |                                  |                |              |            |
-| Total                            | 7              |              | 5          |
+| Total                            |                |              | 34         |
 |                                  |                |              |            |
-|                                  |                |              |            |
-| Interaction on others project(s) |                |              |            |
-| Category                         | min per person | point factor | max points |
-| Commits                          | 3              | 1            | 3          |
-| Branches                         | 1              | 0.5          | 0.5        |
-| Issues                           | 9              | 0.5          | 4.5        |
-| \# Conversations                 | 15             | 0.2          | 3          |
-|                                  |                |              |            |
-| Total                            | 22             |              | 11         |
 |                                  |                |              |            |
 | Result                           |                |              |            |
-| Task completion                  | 5              | 1            | 5          |
+| Task completion                  |                |              | 8          |
 |                                  |                |              |            |
 | Sum                              |                |              | 42         |
