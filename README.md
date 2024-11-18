@@ -4,7 +4,7 @@ This Homework is seperated into two task groups (algorithm, numerical calculatio
 Remember you are in charge to have a review assigned if one available, also you have to finish your review 2 hours after assignment.
 Once the review is finished the original author has 12 hours to fix the issues mentionend in the review.
 
-## Task group 1 algorithm (12 members per algorithm)
+## Task group 1 algorithm (2 members per algorithm)
 Use the four integral algorithms (simpson, adaptive trapezoid, trapezoid) to create a Jupyter notebook that imports the functions from `calculus.py` and use them to calculate and plot the integral of:
 
 In common files `calculus.py` and `test_calculus.py` create functions and unit tests to calculate the integral using the following algorithm :
@@ -34,7 +34,7 @@ Each algorithm has to be implemented in three ways.
 
 **Hint:** You can use https://github.com/ubsuny/CompPhys/blob/main/Calculus/ for examples for the C/C++ code
 
-Generate one PR per implementation.
+Generate one PR per implementation and one PR for unit testing.
 Review each others PR.
 
 ## Task group 2 numerical calculation and presentation (max 4 members due till Monday)
@@ -77,7 +77,7 @@ Generate a figure `function_name.png` showing the function and mark all roots wi
 
 ---
 
-Generate one PR per function.
+Generate one PR per function and one PR for unit testing.
 Review each others PR.
 
 ## Task group 4 maintainers (max 1 member)
@@ -93,22 +93,22 @@ Review each others PR.
 | Interaction on project           |                |              |            |
 | Category                         | min per person | point factor | max points |
 | Commits                          | 1              | 1            | 1          |
-| Pull requests                    | 3              | 2            | 6          |
-| PR Accepted                      | 3              | 3            | 9          |
-| Other PR reviewed (by request)   | 3              | 4            | 12          |     
+| Pull requests                    | 2              | 2            | 4          |
+| PR Accepted                      | 2              | 4            | 8          |
+| Other PR reviewed.               | 2              | 3            | 6          |     
 | Issues                           | 0              | 0            | 0          | 
 | Closed Issues                    | 0              | 0            | 0          |
 | \# Conversations                 | 12             | 1/4          | 3          |
 |                                  |                |              |            |
-| Total                            |                |              | 31         |
+| Total                            |                |              | 20         |
 |                                  |                |              |            |
 | Shared project points            |                |              |            |
 | \# Milestones                    | 12             | 1/4          | 3          |
 |                                  |                |              |            |
-| Total                            |                |              | 34         |
+| Total                            |                |              | 23         |
 |                                  |                |              |            |
 |                                  |                |              |            |
 | Result                           |                |              |            |
-| Task completion                  |                |              | 8          |
+| Task completion                  |                |              | 19         |
 |                                  |                |              |            |
 | Sum                              |                |              | 42         |
