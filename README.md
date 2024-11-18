@@ -81,9 +81,8 @@ Generate one PR per function.
 Review each others PR.
 
 ## Task group 4 maintainers (max 1 member)
-- Reuse github actions for linting and unit tests
-- Merge PR
-- assign Reviews after member requests
+- Maintainer is in charge of the directory structure
+- Merge and review PRs for complience
   
 ---
 ## Grading
