@@ -5,7 +5,7 @@ Remember you are in charge to have a review assigned if one available, also you 
 Once the review is finished the original author has 12 hours to fix the issues mentionend in the review.
 
 ## Task group 1 algorithm (2 members per algorithm)
-Use the four integral algorithms (simpson, adaptive trapezoid, trapezoid) to create a Jupyter notebook that imports the functions from `calculus.py` and use them to calculate and plot the integral of:
+Use the four integral algorithms (simpson, adaptive trapezoid, trapezoid) to calculate and plot the integral of:
 
 In common files `calculus.py` and `test_calculus.py` create functions and unit tests to calculate the integral using the following algorithm :
 - simpson
