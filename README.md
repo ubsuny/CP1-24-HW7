@@ -13,7 +13,7 @@ In common files `calculus.py` and `test_calculus.py` create functions and unit t
 - trapezoid
 
 Each algorithm has to be implemented in three ways.
-1. wrapper for numpy implementation (due Wednesday)
+1. wrapper for numpy (only trapezoid) and scipy (only simpson) implementation (due Wednesday)
 2. pure python implementation (due Friday)
 3. c/c++ implementation using ctypes in python (due Monday)
 
@@ -26,7 +26,7 @@ In the same file `calculus.py` and `test_calculus.py` implement three root-findi
 - tangent
 
 Each algorithm has to be implemented in three ways.
-1. wrapper for numpy implementation (due Wednesday)
+1. wrapper for scipy implementation (only bisection and tangent) (due Wednesday)
 2. pure python implementation (due Friday)
 3. c/c++ implementation using ctypes in python (due Monday)
 
