@@ -1,5 +1,5 @@
 """
-test_calculus.py
+Unit testing module for testing functions in calculus.py
 """
 import numpy as np
 import calculus as calc

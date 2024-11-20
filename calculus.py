@@ -32,19 +32,22 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     # plotting the original and integrated functions
     plt.plot(x, y, label = '$f(x)$')
     # plt.plot(x[:-1], integral_function, label = '$\\int_a^b f(x) dx$')
-    plt.plot(x, integral_function, label = '$\\int f(t) dt$: area under $y = f(x)$')
+    plt.plot(x, integral_function,
+             label = 'shaded area under $y = f(x)$: $\\int f(t) dt = $'+str(integral_value))
+    plt.fill_between(x, y, 0)
     plt.ylabel('y(x)')
     plt.xlabel('x')
+    plt.title('integral using numpy trapezoidal method; steps = '+str(steps))
     plt.legend()
 
     return integral_value
 
-def trapezoid_scipy(f, a, b, n=10000):
+def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     '''
     Function to implement trapezoidal rule using scipy and plot the result
     '''
-    x = np.linspace(a, b, n+1)  # create a linear grid between upper and lower limit
-    y = f(x)    # evaluate the function on the grid
+    x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
+    y = func(x)    # evaluate the function on the grid
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
 
     integral_function = np.zeros(len(x))    # a zero array for integral at each point
@@ -58,8 +61,11 @@ def trapezoid_scipy(f, a, b, n=10000):
 
     # plotting the original and integrated functions
     plt.plot(x, y, label = '$f(x)$')
+    plt.fill_between(x, y, 0)
     # plt.plot(x[:-1], integral_function, label = '$\\int_a^b f(x) dx$')
-    plt.plot(x, integral_function, label = '$\\int f(t) dt$: area under $y = f(x)$')
+    plt.plot(x, integral_function,
+             label = 'shaded area under $y = f(x)$: $\\int f(t) dt = $'+str(integral_value))
+    plt.title('integral using scipy trapezoidal method; steps = '+str(steps))
     plt.ylabel('y(x)')
     plt.xlabel('x')
     plt.legend()
