@@ -4,7 +4,6 @@ test_calculus.py
 import calculus as calc
 import unittest # Import the unittest module
 import numpy as np
-import sympson from calculus
 
 class TestCalculusFunctions(unittest.TestCase):
     """
