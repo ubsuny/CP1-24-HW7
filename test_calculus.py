@@ -17,7 +17,21 @@ class TestCalculusFunctions(unittest.TestCase):
     """
     def test_simpson(self): # Indent this function definition
         """Test the simpson function with a known integral."""
+# Function: x^3 + 1
+        def f(x):
+            return x**3 + 1
 
+        # Initial guesses and expected outcome for Function: x^3 + 1
+        a = -1
+        b = 1
+        n = 100
+        expected_integral = 2
+
+        # Call the simpson function from calculus module
+        result = calc.simpson(f, a, b, n)
+
+        # Check if the result is close to the expected integral
+        self.assertAlmostEqual(result, expected_integral, places=5)
 
     # Indent the following functions one level further to be part of the class
     def exp_minus_1_over_x(self, x): # Added 'self' as argument for class methods
@@ -31,18 +45,6 @@ class TestCalculusFunctions(unittest.TestCase):
     def x3_plus_1(self, x): # Added 'self' as argument for class methods
         """f: x^3 + 1"""
         return x**3 + 1
-
-        # Initial guesses and expected outcome for Function: x^3 + 1
-        a = -1
-        b = 1
-        n = 100
-        expected_integral = 2
-
-        # Call the simpson function
-        result = simpson(f, a, b, n)
-
-        # Check if the result is close to the expected integral
-        self.assertAlmostEqual(result, expected_integral, places=5)
 
 def test_dummy():
     """ Unit test for dummy function
