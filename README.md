@@ -80,7 +80,7 @@ Generate a figure `function_name.png` showing the function and mark all roots wi
 Generate one PR per function and one PR for unit testing.
 Review each others PR.
 
-## Task group 4 maintainers (max 1 member)
+## Task group 3 maintainers (max 1 member)
 - Maintainer is in charge of the directory structure
 - Merge and review PRs for complience
   

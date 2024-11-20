@@ -1,5 +1,14 @@
+"""
+calculus.py
+"""
+
 import numpy as np
 
+def dummy():
+    """ dummy functions for template file
+    just the same function that Dr Thomay made"""
+    return 0
+  
 def a_trap(y, d):
     """
     trap takes in y as an array of y values
@@ -100,3 +109,6 @@ def adapt(func, bounds, d, sens):
                 new_y=func2(new_x)
             sum+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
     return sum
+
+
+
