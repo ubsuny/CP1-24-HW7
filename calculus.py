@@ -26,9 +26,6 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
         # calculate the integral at each x for plotting
         integral_function[i] = np.trapezoid(y[:i+1], x[:i+1])
 
-    #dx = np.diff(x)
-    #integral_function = np.cumsum(dx * (y[:-1] + y[1:]) / 2)
-
     # plotting the original and integrated functions
     plt.plot(x, y, label = '$f(x)$')
     # plt.plot(x[:-1], integral_function, label = '$\\int_a^b f(x) dx$')
@@ -55,9 +52,6 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     for i in range(1, len(x)):
         # calculate the integral at each x for plotting
         integral_function[i] = sp.integrate.trapezoid(y[:i+1], x[:i+1])
-
-    # dx = np.diff(x)
-    # integral_function = np.cumsum(dx * (y[:-1] + y[1:]) / 2)
 
     # plotting the original and integrated functions
     plt.plot(x, y, label = '$f(x)$')
