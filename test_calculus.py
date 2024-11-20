@@ -1,9 +1,9 @@
 """
 test_calculus.py
 """
-import calculus as calc
 import unittest # Import the unittest module
 import numpy as np
+import calculus as calc
 
 class TestCalculusFunctions(unittest.TestCase):
     """
@@ -43,7 +43,7 @@ class TestCalculusFunctions(unittest.TestCase):
 
         # Check if the result is close to the expected integral
         self.assertAlmostEqual(result, expected_integral, places=5)
-        
+
 def test_dummy():
     """ Unit test for dummy function
     just the same test function that Dr Thomay made"""
