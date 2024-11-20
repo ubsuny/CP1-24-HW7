@@ -1,14 +1,15 @@
 """
 calculus.py
+this module contain function  to calculate the integral using the simpson
 """
-""" this module contain function  to calculate the integral using the simpson """
 
 import numpy as np
+
 def dummy():
     """ dummy functions for template file
     just the same function that Dr Thomay made"""
     return 0
-    
+
 def simpson(f, a, b, n):
     """
     Approximate the integral of the function f over the interval [a, b] using Simpson's rule.
