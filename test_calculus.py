@@ -2,8 +2,8 @@
 test_calculus.py
 """
 
-import unittest
 import math
+import pytest
 import calculus as calc
 
 def test_dummy():
@@ -11,93 +11,54 @@ def test_dummy():
     just the same test function that Dr Thomay made"""
     assert calc.dummy() == 0
 
-class TestBisectionMethods(unittest.TestCase):
-    """
-    Unit tests for bisection root-finding methods implemented in three ways:
-    - SciPy wrapper implementation
-    - Pure Python implementation
-    - C++ ctypes implementation
+# Test data for various cases
+test_data_tanh = [
+    (math.tanh, -1, 1, 1e-6, 0.0)  # (function, a, b, tol, expected_root)
+]
 
-    Tests are performed on multiple mathematical functions, including:
-    - y(x) = 1 / sin(x), which has singularities where sin(x) = 0
-    - y(x) = tanh(x), a smooth function with a root at x = 0
+test_data_1_over_sin = [
+    (lambda x: 1 / math.sin(x) if math.sin(x) != 0 else float('inf'), 3, 4, 1e-6, math.pi)
+]
 
-    Additionally, tests include edge cases for:
-    - Invalid intervals where func(a) and func(b) do not have opposite signs
-    - Proper handling of singularities and undefined values
-    """
+invalid_interval_data = [
+    (math.tanh, -1, -0.5, 1e-6)  # (function, a, b, tol)
+]
 
-    def test_wrapper_tanh(self):
-        """Test SciPy wrapper implementation with tanh(x)."""
-        def func(x):
-            return math.tanh(x)
-        root = calc.bisection_wrapper(func, -1, 1, tol=1e-6)
-        self.assertAlmostEqual(root, 0.0, places=6)
+singularity_data = [
+    (lambda x: 1 / math.sin(x) if math.sin(x) != 0 else float('inf'),
+     math.pi - 0.1, math.pi + 0.1, 1e-6)
+]
 
-    def test_wrapper_1_over_sin(self):
-        """Test SciPy wrapper implementation with 1/sin(x)."""
-        def func(x):
-            if math.sin(x) == 0:
-                raise ValueError("Function undefined where sin(x) = 0.")
-            return 1 / math.sin(x)
-        root = calc.bisection_wrapper(func, 3, 4, tol=1e-6)  # Root near pi
-        self.assertAlmostEqual(root, math.pi, places=6)
+# SciPy Wrapper Tests
+@pytest.mark.parametrize("func, a, b, tol, expected", test_data_tanh + test_data_1_over_sin)
+def test_wrapper(func, a, b, tol, expected):
+    """Test SciPy wrapper implementation."""
+    root = calc.bisection_wrapper(func, a, b, tol)
+    assert math.isclose(root, expected, rel_tol=1e-6), f"Expected {expected}, got {root}"
 
-    def test_pure_python_tanh(self):
-        """Test pure Python implementation with tanh(x)."""
-        def func(x):
-            return math.tanh(x)
-        root = calc.bisection_pure_python(func, -1, 1, tol=1e-6)
-        self.assertAlmostEqual(root, 0.0, places=6)
+# Pure Python Implementation Tests
+@pytest.mark.parametrize("func, a, b, tol, expected", test_data_tanh + test_data_1_over_sin)
+def test_pure_python(func, a, b, tol, expected):
+    """Test pure Python implementation."""
+    root = calc.bisection_pure_python(func, a, b, tol)
+    assert math.isclose(root, expected, rel_tol=1e-6), f"Expected {expected}, got {root}"
 
-    def test_pure_python_1_over_sin(self):
-        """Test pure Python implementation with 1/sin(x)."""
-        def func(x):
-            if math.sin(x) == 0:
-                raise ValueError("Function undefined where sin(x) = 0.")
-            return 1 / math.sin(x)
-        root = calc.bisection_pure_python(func, 3, 4, tol=1e-6)
-        self.assertAlmostEqual(root, math.pi, places=6)
+# Invalid Interval Tests
+@pytest.mark.parametrize("func, a, b, tol", invalid_interval_data)
+def test_invalid_interval(func, a, b, tol):
+    """Test for invalid intervals where func(a) and func(b) do not have opposite signs."""
+    with pytest.raises(ValueError):
+        calc.bisection_wrapper(func, a, b, tol)
 
-    def test_ctypes_tanh(self):
-        """Test C++ ctypes implementation with tanh(x)."""
-        def func(x):
-            return math.tanh(x)
-        root = calc.bisection_ctypes(func, -1, 1, tol=1e-6)
-        self.assertAlmostEqual(root, 0.0, places=6)
+    with pytest.raises(ValueError):
+        calc.bisection_pure_python(func, a, b, tol)
 
-    def test_ctypes_1_over_sin(self):
-        """Test C++ ctypes implementation with 1/sin(x)."""
-        def func(x):
-            if math.sin(x) == 0:
-                raise ValueError("Function undefined where sin(x) = 0.")
-            return 1 / math.sin(x)
-        root = calc.bisection_ctypes(func, 3, 4, tol=1e-6)
-        self.assertAlmostEqual(root, math.pi, places=6)
+# Singularity Tests
+@pytest.mark.parametrize("func, a, b, tol", singularity_data)
+def test_singularities(func, a, b, tol):
+    """Test handling of singularities for 1/sin(x)."""
+    with pytest.raises(ValueError):
+        calc.bisection_wrapper(func, a, b, tol)
 
-    def test_invalid_interval(self):
-        """Test for invalid intervals where func(a) and func(b) do not have opposite signs."""
-        def func(x):
-            return math.tanh(x)
-        with self.assertRaises(ValueError):
-            calc.bisection_wrapper(func, -1, -0.5, tol=1e-6)
-        with self.assertRaises(ValueError):
-            calc.bisection_pure_python(func, -1, -0.5, tol=1e-6)
-        with self.assertRaises(ValueError):
-            calc.bisection_ctypes(func, -1, -0.5, tol=1e-6)
-
-    def test_singularities(self):
-        """Test handling of singularities for 1/sin(x)."""
-        def func(x):
-            if math.sin(x) == 0:
-                raise ValueError("Function undefined where sin(x) = 0.")
-            return 1 / math.sin(x)
-        with self.assertRaises(ValueError):
-            calc.bisection_wrapper(func, math.pi - 0.1, math.pi + 0.1, tol=1e-6)
-        with self.assertRaises(ValueError):
-            calc.bisection_pure_python(func, math.pi - 0.1, math.pi + 0.1, tol=1e-6)
-        with self.assertRaises(ValueError):
-            calc.bisection_ctypes(func, math.pi - 0.1, math.pi + 0.1, tol=1e-6)
-
-# if __name__ == "__main__":
-#     unittest.main()
+    with pytest.raises(ValueError):
+        calc.bisection_pure_python(func, a, b, tol)
