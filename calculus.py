@@ -36,13 +36,13 @@ def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
 
     Raises:
         ValueError: If func(a) and func(b) do not have opposite signs or if
-                    the function encounters undefined values.
+                    the function encounters undefined values (singularities).
     """
     # Define a small tolerance for division by zero (close to zero)
     small_value_threshold = 1e-10
-    
+
     try:
-        # Check for singularity: if func(a) or func(b) are very large, raise an exception
+        # Check for singularity: if func(a) or func(b) are very large or undefined
         if abs(func(a)) > 1e10 or abs(func(b)) > 1e10:
             raise ValueError("Function value is too large or singular at interval endpoints.")
 
@@ -50,9 +50,11 @@ def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
         if abs(math.sin(a)) < small_value_threshold or abs(math.sin(b)) < small_value_threshold:
             raise ValueError("Singularity detected: division by zero in function.")
 
+        # Call the SciPy bisect method if no errors were raised
         root = bisect(func, a, b, xtol=tol, maxiter=max_iter)
     except ValueError as e:
         raise ValueError(f"SciPy bisect failed: {e}") from e
+
     return root
 
 
