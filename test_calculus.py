@@ -11,14 +11,14 @@ def test_scipy_simpson():
     test the scipy implementation for simpson method
     """
     # Define the function to integrate
-    def f(x):
+    def test_func(x):
         return x**3 + 1  # Function to integrate
 
     # Define the range for integration
     a, b = -1, 1
 
     # Compute the integral using Simpson's rule
-    result = scipy_simpson(scipy_simpson, a, b)
+    result = scipy_simpson(test_func, a, b)
 
     # Expected result (integral of x^3 + 1 from -1 to 1 is 2)
     expected_result = 2.0
