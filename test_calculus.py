@@ -29,7 +29,7 @@ def func_1_prime(x):
     """
     return 2 * x
 
-@pytest.fixture
+@pytest.fixture(name = "initial_guess_1")
 def func_1_x_0():
     """
     A function that returns a value for x as a first guess to be used for testing
@@ -41,7 +41,7 @@ def test_dummy():
     just the same test function that Dr Thomay made"""
     assert calc.dummy() == 0
 
-def test_root_tangent(func_1_x_0):
+def test_root_tangent(initial_guess_1):
     """
     A function that tests the wrapper implementation for tangent method for root-finding
 
@@ -51,5 +51,5 @@ def test_root_tangent(func_1_x_0):
     func_1_prime (function): the derivative of the function
     x_0 (number): the initial guess for the root
     """
-    compare = calc.root_tangent(func_1, func_1_prime, func_1_x_0)
+    compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
     assert np.isclose(compare, 0.0, atol = 1.0e-6)
