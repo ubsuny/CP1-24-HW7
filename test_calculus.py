@@ -98,4 +98,3 @@ def test_adapt(func, bounds, d, sens, expected):
     """
     result = calc.adapt(func, bounds, d, sens)
     assert np.isclose(result, expected, atol=1e-2)
-
