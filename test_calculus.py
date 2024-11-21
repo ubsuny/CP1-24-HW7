@@ -10,7 +10,7 @@ def test_simpson():
     Unit test simpson method
     """
     # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(calc.simpson(np.sin, 0, np.pi), 2)
+    assert np.isclose(calc.simpson(np.sin, 0, np.pi, 100), 2)
 
 def test_dummy():
     """ 
