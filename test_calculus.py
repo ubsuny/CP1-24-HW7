@@ -47,6 +47,3 @@ class TestCalculusFunctions(unittest.TestCase):
 
         # Check if the result is close to the expected value (within 5 decimal places)
         self.assertAlmostEqual(result, expected_integral, places=5)
-
-if __name__ == "__main__":
-    unittest.main()
