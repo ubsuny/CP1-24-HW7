@@ -10,6 +10,9 @@ Functions:
 - bisection_pure_python: A pure Python implementation of the bisection method.
 - 
 """
+
+import ctypes
+import math
 from scipy.optimize import bisect
 
 def dummy():
@@ -74,3 +77,44 @@ def bisection_pure_python(func, a, b, tol=1e-6):
             a = root
 
     return root
+
+# Define C-compatible function pointers
+CFUNC = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+
+# Load the shared library
+lib = ctypes.CDLL('./bisection.so')
+
+# Update ctypes function signature
+lib.root_bisection.argtypes = [
+    CFUNC,
+    ctypes.c_double,
+    ctypes.c_double,
+    ctypes.c_double,
+    ctypes.c_int,
+    ctypes.c_bool
+]
+lib.root_bisection.restype = ctypes.c_double
+
+def bisection_ctypes(func, x0, x1, tol=1e-6, max_iter=1000):
+    """
+    C++ implementation of the bisection method using ctypes.
+    """
+    def c_safe_func(x):
+        try:
+            return func(x)
+        except ValueError:
+            return float('nan')  # Return NaN for invalid values
+
+    c_func = CFUNC(c_safe_func)
+    result = lib.root_bisection(
+        c_func, ctypes.c_double(x0),
+        ctypes.c_double(x1),
+        ctypes.c_double(tol),
+        ctypes.c_int(max_iter),
+        ctypes.c_bool(False)
+    )
+
+    if math.isnan(result):
+        raise ValueError("C++ root_bisection failed or encountered undefined values.")
+
+    return result
