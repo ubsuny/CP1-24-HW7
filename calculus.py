@@ -39,6 +39,14 @@ def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
                     the function encounters undefined values.
     """
     try:
+         # Check for singularity: if func(a) or func(b) are very large, raise an exception
+        if abs(func(a)) > 1e10 or abs(func(b)) > 1e10:
+            raise ValueError("Function value is too large or singular at interval endpoints.")
+
+        # Check for division by zero explicitly in the function being passed
+        if math.sin(a) == 0 or math.sin(b) == 0:
+            raise ValueError("Singularity detected: division by zero in function.")
+
         root = bisect(func, a, b, xtol=tol, maxiter=max_iter)
     except ValueError as e:
         raise ValueError(f"SciPy bisect failed: {e}") from e
@@ -77,44 +85,3 @@ def bisection_pure_python(func, a, b, tol=1e-6):
             a = root
 
     return root
-
-# Define C-compatible function pointers
-CFUNC = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
-
-# Load the shared library
-lib = ctypes.CDLL('./bisection.so')
-
-# Update ctypes function signature
-lib.root_bisection.argtypes = [
-    CFUNC,
-    ctypes.c_double,
-    ctypes.c_double,
-    ctypes.c_double,
-    ctypes.c_int,
-    ctypes.c_bool
-]
-lib.root_bisection.restype = ctypes.c_double
-
-def bisection_ctypes(func, x0, x1, tol=1e-6, max_iter=1000):
-    """
-    C++ implementation of the bisection method using ctypes.
-    """
-    def c_safe_func(x):
-        try:
-            return func(x)
-        except ValueError:
-            return float('nan')  # Return NaN for invalid values
-
-    c_func = CFUNC(c_safe_func)
-    result = lib.root_bisection(
-        c_func, ctypes.c_double(x0),
-        ctypes.c_double(x1),
-        ctypes.c_double(tol),
-        ctypes.c_int(max_iter),
-        ctypes.c_bool(False)
-    )
-
-    if math.isnan(result):
-        raise ValueError("C++ root_bisection failed or encountered undefined values.")
-
-    return result
