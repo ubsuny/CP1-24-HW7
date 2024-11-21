@@ -24,9 +24,12 @@ invalid_interval_data = [
     (math.tanh, -1, -0.5, 1e-6)  # (function, a, b, tol)
 ]
 
+# Test data: singularities near sin(x) = 0
 singularity_data = [
     (lambda x: 1 / math.sin(x) if math.sin(x) != 0 else float('inf'),
-     math.pi - 0.1, math.pi + 0.1, 1e-6)
+     3.141592653589793 - 1e-3, 3.141592653589793 + 1e-3, 1e-6),  # near singularity
+    (lambda x: 1 / math.sin(x), 3.1405926535897932, 3.142592653589793,
+     1e-6), # Check behavior near zero
 ]
 
 # SciPy Wrapper Tests
