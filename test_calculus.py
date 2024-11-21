@@ -21,3 +21,9 @@ def test_trapezoid_scipy():
     Unit test for scipy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
+
+def test_trapezoid_python():
+    '''
+    Unit test for pure python implementation of trapezoid method
+    '''
+    assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
