@@ -4,7 +4,6 @@ test_calculus.py
 
 import numpy as np
 import calculus as calc
-from calculus import scipy_simpson
 # Define the function to integrate outside the test function
 
 def test_scipy_simpson():
