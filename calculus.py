@@ -25,7 +25,10 @@ N = 100  # Number of intervals
 # Create an array of x values from A to B
 x_values = np.linspace(A, B, N+1)
 
+# Calculate the function values for x^3 + 1 at the points in x_values
+y_values = x3_plus_1(x_values)
+
 # Use scipy.integrate.simpson to compute the integral of x^3 + 1
-result = simpson(x3_plus_1(x_values), x_values)
+result = simpson(y_values, x_values)
 
 print(f"The integral of x^3 + 1 over [{A}, {B}] is approximately {result:.5f}")
