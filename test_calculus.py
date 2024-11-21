@@ -27,12 +27,13 @@ class TestCalculusFunctions(unittest.TestCase):
         a = -1
         b = 1
         n = 100  # Number of intervals
+        
+        # Ensure n is odd (if it's even, we increment by 1)
+        if n % 2 == 0:
+            n += 1
 
         # Create an array of x values between a and b (n+1 points)
         x = np.linspace(a, b, n+1)
-        # Ensure n is even
-    if n % 2 == 1:
-        n += 1
 
         # The expected integral for the function x^3 + 1 over [-1, 1]
         expected_integral = (b**4 / 4 + b) - (a**4 / 4 + a)  # Integral of x^3 + 1 analytically
