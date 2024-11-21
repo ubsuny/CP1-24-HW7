@@ -28,4 +28,4 @@ x_values = np.linspace(A, B, N+1)
 # Use scipy.integrate.simpson to compute the integral of x^3 + 1
 result = simpson(x3_plus_1(x_values), x_values)
 
-print(f"The integral of x^3 + 1 over [{a}, {b}] is approximately {result:.5f}")
+print(f"The integral of x^3 + 1 over [{A}, {B}] is approximately {result:.5f}")
