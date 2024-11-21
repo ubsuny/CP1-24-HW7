@@ -18,14 +18,14 @@ def x3_plus_1(x):
     return x**3 + 1
 
 # Example usage:
-a = -1  # Start of the interval
-b = 1   # End of the interval
-n = 100  # Number of intervals (ensure this is odd for Simpson's Rule)
+A = -1  # Start of the interval
+B = 1   # End of the interval
+N = 100  # Number of intervals
 
-# Create an array of x values from a to b
-x = np.linspace(a, b, n+1)
+# Create an array of x values from A to B
+x_va;ues = np.linspace(A, B, N+1)
 
 # Use scipy.integrate.simpson to compute the integral of x^3 + 1
-result = simpson(x3_plus_1(x), x)
+result = simpson(x3_plus_1(x_values), x_values)
 
 print(f"The integral of x^3 + 1 over [{a}, {b}] is approximately {result:.5f}")
