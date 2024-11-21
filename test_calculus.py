@@ -20,5 +20,5 @@ def test_scipy_simpson():
     expected_result = 2.0
 
     # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(result, expected_result, atol=1e-6),
-    f"Expected {expected_result}, but got {result}"
+    assert np.isclose(result, expected_result, atol=1e-6), \
+        f"Expected {expected_result}, but got {result}"
