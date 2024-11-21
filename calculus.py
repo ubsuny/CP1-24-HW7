@@ -114,7 +114,7 @@ def adapt(func, bounds, d, sens):
                 new_y=func2(new_x)
             summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
     return summer
-    
+
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using numpy wrapper function
