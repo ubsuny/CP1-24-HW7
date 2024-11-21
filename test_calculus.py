@@ -34,8 +34,11 @@ class TestCalculusFunctions(unittest.TestCase):
         # The expected integral for the function x^3 + 1 over [-1, 1]
         expected_integral = (b**4 / 4 + b) - (a**4 / 4 + a)  # Integral of x^3 + 1 analytically
 
-        # Compute the integral using scipy's simpson rule
-        result = simpson(x3_plus_1(x), x)
+        # Calculate the function values for x^3 + 1 at the points in x_values
+        y_values = x3_plus_1(x)
+        
+        # Use scipy.integrate.simpson to compute the integral of x^3 + 1
+        result = simpson(y_values)
 
         # Check if the result is close to the expected value (within 5 decimal places)
         self.assertAlmostEqual(result, expected_integral, places=5)
