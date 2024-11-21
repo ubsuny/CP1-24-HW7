@@ -33,4 +33,6 @@ def simpson(f, a, b, n):
     s += 4 * np.sum(f(a + i[1::2] * h))
     s += 2 * np.sum(f(a + i[2:-1:2] * h))
 
-    return s * h / 3
+    # Compute the integral and return both the result and the updated value of n
+    integral = s * h / 3
+    return integral, n
