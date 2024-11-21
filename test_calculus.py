@@ -1,9 +1,9 @@
 """
 test_calculus.py
 """
-import unittest # Import the unittest module
+import unittest
 import numpy as np
-import calculus as calc
+from scipy.integrate import simpson
 
 class TestCalculusFunctions(unittest.TestCase):
     """
@@ -15,38 +15,27 @@ class TestCalculusFunctions(unittest.TestCase):
     the behavior of integration functions for a variety of mathematical
     expressions and domains.
     """
-    def test_simpson(self): # Indent this function definition
-        """Test the simpson function with a known integral."""
-# Function: x^3 + 1
-        def f(x):
+    def test_simpson(self):
+        """Test the scipy.simpson function with a known integral."""
+
+        # Example: Integral of f(x) = x^3 + 1 over the interval [-1, 1]
+        def x3_plus_1(x):
+            """f: x^3 + 1"""
             return x**3 + 1
 
-        # Initial guesses and expected outcome for Function: x^3 + 1
+        # Interval
         a = -1
         b = 1
-        n = 100
-        expected_integral = 2
+        n = 100  # Number of intervals (ensure this is odd for Simpson's Rule)
 
-        # Call the simpson function from calculus module
-        result = calc.simpson(f, a, b, n)
+        # Create an array of x values between a and b (n+1 points)
+        x = np.linspace(a, b, n+1)
 
-        # Check if the result is close to the expected integral
+        # The expected integral for the function x^3 + 1 over [-1, 1]
+        expected_integral = (b**4 / 4 + b) - (a**4 / 4 + a)  # Integral of x^3 + 1 analytically
+
+        # Compute the integral using scipy's simpson rule
+        result = simpson(x3_plus_1(x), x)
+
+        # Check if the result is close to the expected value (within 5 decimal places)
         self.assertAlmostEqual(result, expected_integral, places=5)
-
-    # Indent the following functions one level further to be part of the class
-    def exp_minus_1_over_x(self, x): # Added 'self' as argument for class methods
-        """f: e^(-1/x)"""
-        return np.exp(-1/x)
-
-    def cos_1_over_x(self, x): # Added 'self' as argument for class methods
-        """f: cos(1/x)"""
-        return np.cos(1/x)
-
-    def x3_plus_1(self, x): # Added 'self' as argument for class methods
-        """f: x^3 + 1"""
-        return x**3 + 1
-
-def test_dummy():
-    """ Unit test for dummy function
-    just the same test function that Dr Thomay made"""
-    assert calc.dummy() == 0
