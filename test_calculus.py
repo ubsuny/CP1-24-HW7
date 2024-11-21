@@ -36,7 +36,7 @@ class TestCalculusFunctions(unittest.TestCase):
 
         # Calculate the function values for x^3 + 1 at the points in x_values
         y_values = x3_plus_1(x)
-        
+
         # Use scipy.integrate.simpson to compute the integral of x^3 + 1
         result = simpson(y_values)
 
