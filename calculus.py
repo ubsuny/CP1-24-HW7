@@ -3,6 +3,8 @@ calculus.py
 this module contain implementation of scipy for simpson
 """
 import numpy as np
+from scipy import optimize
+import scipy as sp
 from scipy.integrate import simpson
 
 # General function to integrate
@@ -27,12 +29,7 @@ def scipy_simpson(f, a, b, n=100):
 
     # Use Simpson's rule to approximate the integral
     return simpson(y)
-  
-"""
-This module implements different integration and root finding algorithms
-"""
-from scipy import optimize
-import scipy as sp
+
 # import matplotlib.pyplot as plt
 
 def dummy():
