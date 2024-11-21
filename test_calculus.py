@@ -66,3 +66,36 @@ def test_trapezoid_scipy():
     Unit test for scipy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
+
+def d3(x):
+    """Derivative of x^3 + 1."""
+    return 3 * x**2
+
+def d1(x):
+    """Derivative of exp(-1/x)."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return np.exp(-1 / x) / x**2
+
+def d2(x):
+    """Derivative of cos(1/x)."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return np.sin(1 / x) / x**2
+
+@pytest.mark.parametrize("func, bounds, d, sens, expected", [
+    ("x^3+1", [0, 1], 100, 1, 1.25),  # Integral of x^3 + 1 from 0 to 1
+    ("exp(-1/x)", [1, 2], 100, 1, 0.5047),  # Approximation
+    ("cos(1/x)", [0.1, 0.2], 100, 1, 0.0322),  # Approximation
+])
+def test_adapt(func, bounds, d, sens, expected):
+    """
+    Unit test for adaptive integration function
+
+    Parameters:
+    func (str): the function to integrate
+    bounds (list): integration bounds [lower, upper]
+    d (int): number of points
+    sens (float): sensitivity of the adaptation
+    """
+    result = calc.adapt(func, bounds, d, sens)
+    assert np.isclose(result, expected, atol=1e-2)
+
