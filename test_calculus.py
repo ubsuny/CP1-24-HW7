@@ -2,7 +2,6 @@
 Unit testing module for testing functions in calculus.py
 """
 
-import unittest # Import the unittest module
 import numpy as np
 import calculus as calc
 
@@ -11,7 +10,7 @@ def test_simpson():
     Unit test simpson method
     """
     # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(calc.simpson(x**3 + 1, -1, 1), 2)
+    assert np.isclose(calc.simpson(np.sin, 0, np.pi), 2)
 
 def test_dummy():
     """ 
