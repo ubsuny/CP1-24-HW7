@@ -257,3 +257,41 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     y = func(x)    # evaluate the function on the modified grid
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
     return integral_value
+
+def trapezoid(f, a, b, n):
+    """
+    Compute the trapezoidal approximation of an integral.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    n (int): Number of subdivisions.
+    """
+    h = (b - a) / n
+    x = [a + i * h for i in range(n + 1)]
+    y = [f(xi) for xi in x]
+    return (h / 2) * (y[0] + 2 * sum(y[1:-1]) + y[-1])
+
+
+def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
+    """
+    Compute an integral using the adaptive trapezoid method.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    tol (float): Tolerance for stopping condition.
+    remaining_depth (int): Remaining recursion depth to avoid infinite recursion.
+    """
+    integral1 = trapezoid(f, a, b, n=1)
+
+    integral2 = trapezoid(f, a, b, n=2)
+
+    if abs(integral2 - integral1) < tol or remaining_depth <= 0:
+        return integral2
+
+    mid = (a + b) / 2
+    left_integral = adaptive_trap_py(f, a, mid, tol / 2, remaining_depth - 1)
+    right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
+
+    return left_integral + right_integral
