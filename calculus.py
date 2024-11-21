@@ -32,7 +32,7 @@ def scipy_simpson(f, a, b, n=100):
     y = f(x)
 
     # Use Simpson's rule to approximate the integral
-    return simpson(y, x)
+    return simpson(y)
 
 # import matplotlib.pyplot as plt
 
