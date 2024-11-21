@@ -27,7 +27,7 @@ class TestCalculusFunctions(unittest.TestCase):
         a = -1
         b = 1
         n = 100  # Number of intervals
-        
+
         # Ensure n is odd (if it's even, we increment by 1)
         if n % 2 == 0:
             n += 1
