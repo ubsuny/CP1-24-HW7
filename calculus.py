@@ -21,14 +21,18 @@ def scipy_simpson(f, a, b, n=100):
     Returns:
         float: The approximate integral value.
     """
+    # Ensure the number of intervals is even
+    if n % 2 == 1:
+        n += 1  # Make n even by adding 1 if it's odd
+
     # Create an array of x values between a and b with n points
-    x = np.linspace(a, b, n)
+    x = np.linspace(a, b, n+1)  # n+1 points for n intervals
 
     # Evaluate the function at each x point
     y = f(x)
 
     # Use Simpson's rule to approximate the integral
-    return simpson(y)
+    return simpson(y, x)
 
 # import matplotlib.pyplot as plt
 
