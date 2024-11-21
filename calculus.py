@@ -2,8 +2,6 @@
 This module implements different integration and root finding algorithms
 """
 from scipy import optimize
-
-
 import numpy as np
 
 import scipy as sp
@@ -258,7 +256,7 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
     return integral_value
 
-def secant_wrapper(func, x0, x1, args=(), tol=1e-6, maxiter=50):
+def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     """
     Wrapper for the secant method using scipy.optimize.root_scalar.
 
@@ -279,13 +277,13 @@ def secant_wrapper(func, x0, x1, args=(), tol=1e-6, maxiter=50):
     """
 
     #Use the secant method
-    res = opt.root_scalar(
+    res = optimize.root_scalar(
         func,
         args=args,
         method="secant",
         x0=x0,
         x1=x1,
-        xtol=tol,
+        xtol=1e-6,
         maxiter=maxiter)
 
     #Return a callable dictionary
