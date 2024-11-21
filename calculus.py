@@ -21,9 +21,9 @@ def scipy_simpson(f, a, b, n=100):
     """
     # Create an array of x values between a and b with n points
     x = np.linspace(a, b, n)
-    
+
     # Evaluate the function at each x point
     y = f(x)
-    
+
     # Use Simpson's rule to approximate the integral
-    return simpson(y, x)
+    return simpson(y)
