@@ -43,7 +43,7 @@ class TestCalculusFunctions(unittest.TestCase):
 
         # Use scipy.integrate.simpson to compute the integral of x^3 + 1
         # Pass both y_values and x (the independent variable values)
-        result = simpson(y_values, x)
+        result = simpson(y_values)
 
         # Check if the result is close to the expected value (within 5 decimal places)
         self.assertAlmostEqual(result, expected_integral, places=5)
