@@ -1,5 +1,5 @@
 """
-test_calculus.py
+Unit testing module for testing functions in calculus.py
 """
 import pytest
 import numpy as np
@@ -37,8 +37,9 @@ def func_1_x_0():
     return 0.0073
 
 def test_dummy():
-    """ Unit test for dummy function
-    just the same test function that Dr Thomay made"""
+    """ 
+    Unit test for dummy function
+    """
     assert calc.dummy() == 0
 
 def test_root_tangent(initial_guess_1):
@@ -53,3 +54,15 @@ def test_root_tangent(initial_guess_1):
     """
     compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
     assert np.isclose(compare, 0.0, atol = 1.0e-6)
+
+def test_trapezoid_numpy():
+    '''
+    Unit test for numpy implementation of trapezoid method
+    '''
+    assert np.isclose(calc.trapezoid_numpy(np.sin, 0, np.pi), 2)
+
+def test_trapezoid_scipy():
+    '''
+    Unit test for scipy implementation of trapezoid method
+    '''
+    assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
