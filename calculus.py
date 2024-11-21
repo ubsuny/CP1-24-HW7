@@ -31,10 +31,10 @@ def func3(x):
 
 def d3(x):
     """
-    d3 is the derivative of 
+    d3 is the second derivative of 
     function func3
     """
-    return 3*x**2
+    return 6*x
 
 def func1(x):
     """
@@ -45,10 +45,10 @@ def func1(x):
 
 def d1(x):
     """
-    d1 is the derivative of 
+    d1 is the second derivative of 
     function func1
     """
-    return -1/x*np.exp(-1/x)
+    return (1/x**2)*np.exp(-1/x)
 
 def func2(x):
     """
@@ -59,10 +59,10 @@ def func2(x):
 
 def d2(x):
     """
-    d2 is the derivative of 
+    d2 is the second derivative of 
     function func2
     """
-    return -1/x*np.sin(1/x)
+    return (-1/x**2)*np.cos(1/x)
 
 def adapt(func, bounds, d, sens):
     """
@@ -86,6 +86,7 @@ def adapt(func, bounds, d, sens):
     #between the bounds
     x=np.linspace(bounds[0], bounds[1], d+1)
     dx=x[1]-x[0]
+    dydx=0
     if func=="x^3+1":
         dydx=d3(x)
     elif func=="exp(-1/x)":
@@ -93,27 +94,27 @@ def adapt(func, bounds, d, sens):
     elif func=="cos(1/x)":
         dydx=d2(x)
 
-    
-    iter=enumerate(x)
-    sum=0
-    #a loop is run through x. Each derivative is used to 
-    #define the number of indices of new_x, which is a 
+    loopx=enumerate(x)
+    summer=0
+    #a loop is run through x. Each second derivative is used to
+    #define the number of indices of new_x, which is a
     #list defining a number of points inbetween 2 x values
     #then, trapezoidal integration is conducted over new_x
     #and each integration is summed with eachother to produce
     #the total integral.
-    for count, val in iter:
+    for count, val in loopx:
         if count!=len(x)-1:
             new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*dydx[count]))+1))
+            new_y=[]
             if func=="x^3+1":
                 new_y=func3(new_x)
             elif func=="exp(-1/x)":
                 new_y=func1(new_x)
             elif func=="cos(1/x)":
                 new_y=func2(new_x)
-            sum+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
-    return sum
-
+            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
+    return summer
+    
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using numpy wrapper function
