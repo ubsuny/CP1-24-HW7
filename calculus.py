@@ -23,7 +23,7 @@ B = 1   # End of the interval
 N = 100  # Number of intervals
 
 # Create an array of x values from A to B
-x_va;ues = np.linspace(A, B, N+1)
+x_values = np.linspace(A, B, N+1)
 
 # Use scipy.integrate.simpson to compute the integral of x^3 + 1
 result = simpson(x3_plus_1(x_values), x_values)
