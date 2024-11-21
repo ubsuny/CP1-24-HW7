@@ -13,7 +13,9 @@ def test_scipy_simpson():
     """
     def test_func(x):
         return x**3 + 1  # Function to integrate
-    
+    # Define the range for integration
+    a, b = -1, 1
+
     # Expected result (integral of x^3 + 1 from -1 to 1 is 2)
     expected_result = 2.0
     result = scipy_simpson(test_func, a, b)
