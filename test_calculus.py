@@ -26,10 +26,13 @@ class TestCalculusFunctions(unittest.TestCase):
         # Interval
         a = -1
         b = 1
-        n = 100  # Number of intervals (ensure this is odd for Simpson's Rule)
+        n = 100  # Number of intervals
 
         # Create an array of x values between a and b (n+1 points)
         x = np.linspace(a, b, n+1)
+        # Ensure n is even
+    if n % 2 == 1:
+        n += 1
 
         # The expected integral for the function x^3 + 1 over [-1, 1]
         expected_integral = (b**4 / 4 + b) - (a**4 / 4 + a)  # Integral of x^3 + 1 analytically
