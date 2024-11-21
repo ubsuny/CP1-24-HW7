@@ -10,6 +10,10 @@ def test_scipy_simpson():
     """
     test the scipy implementation for simpson method
     """
+    # Define the function to integrate
+    def f(x):
+        return x**3 + 1  # Function to integrate
+
     # Define the range for integration
     a, b = -1, 1
 
