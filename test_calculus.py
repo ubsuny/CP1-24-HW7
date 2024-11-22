@@ -12,7 +12,8 @@ def test_scipy_simpson():
     test the scipy implementation for simpson method
     """
     # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(calc.scipy_simpson(np.sin, 0, np.pi), 2)
+    result = calc.scipy_simpson(np.sin, 0, np.pi)
+    assert np.isclose(result, 2), f"Expected 2, but got {result}"
 
 def func_1(x):
     """
