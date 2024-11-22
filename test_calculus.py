@@ -2,6 +2,7 @@
 Unit testing module for testing functions in calculus.py
 """
 
+import math
 import pytest
 import numpy as np
 import calculus as calc

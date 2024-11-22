@@ -62,7 +62,9 @@ def simpsons_rule(func, a, b, n):
     x = [a + i * h for i in range(n + 1)]
     y = [func(xi) for xi in x]
 
-    integral = y[0] + y[-1] + 4 * sum(y[i] for i in range(1, n, 2)) + 2 * sum(y[i] for i in range(2, n - 1, 2))
+    integral = y[0] + y[-1]
+    integral += 4 * sum(y[i] for i in range(1, n, 2))
+    integral += 2 * sum(y[i] for i in range(2, n - 1, 2))
     integral *= h / 3
     return integral
 
