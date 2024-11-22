@@ -116,6 +116,7 @@ def test_secant_pure_gets_root():
 
     assert np.isclose(pure['root'],1)
 
+@pytest.mark.filterwarnings("ignore:Tolerance of.*:RuntimeWarning")
 def test_secant_wrapper_doesnt_converge():
     '''
     Unit test to check if scipy secant root finder wrapper 
