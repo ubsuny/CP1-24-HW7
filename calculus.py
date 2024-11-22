@@ -31,10 +31,6 @@ def wrapper_simpson(f, a, b, n=100):
     # Evaluate the function at each x point
     y = f(x)
 
-    # Debugging: Print x and y values
-    print(f"x values: {x}")
-    print(f"y values: {y}")
-
     # Use Simpson's rule to approximate the integral
     return simpson(y)
 
