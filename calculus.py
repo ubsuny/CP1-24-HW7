@@ -341,7 +341,6 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     x0 : The first initial guess (Ideally close to, but less than, the root)
     x1 : The second initial guess (Ideally close to, but greater than, the root)
     args : Additional arguments to pass to the function. Must be a tuple
-    tol : Optional tolerance deciding when to stop function (default is 1e-6).
     maxiter : The maximum number of iterations if convergence is not met (default is 50).
 
     Returns:
@@ -368,3 +367,50 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
         "converged": res.converged,
         "iterations": res.iterations,
         "function_calls": res.function_calls}
+
+
+def secant_pure_python(func, x0, x1, args=(), maxiter=50):
+    """
+    Pure Python method for the secant method of root finding.
+
+    Parameters:
+    func : The function for which the root is to be found.
+    x0 : The first initial guess (Ideally close to, but less than, the root)
+    x1 : The second initial guess (Ideally close to, but greater than, the root)
+    args : Additional arguments to pass to the function. Must be a tuple
+    maxiter : The maximum number of iterations if convergence is not met (default is 50).
+
+    Returns:
+    A dictionary containing:
+        - 'root': The estimated root.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': Number of iterations performed.
+    """
+
+    for i in range(maxiter):
+        #Evaluate function values
+        f0 = func(x0, *args)
+        f1 = func(x1, *args)
+        #Prevent division by zero. If division by zero occurs, return this dict
+        # If no division by zero, move to next dict
+        if abs(f1 - f0) < 1e-12:
+            return {
+                "root": None,
+                "converged": False,
+                "iterations": i}
+        #Secant method formula
+        x_next = x1 - f1 * (x1 - x0) / (f1 - f0)
+        #Check convergence. If converged return this dict
+        #  Add one to iterations until iteration = maxiter
+        if abs(x_next - x1) < 1e-6:
+            return {
+                "root": x_next,
+                "converged": True,
+                "iterations": i + 1}
+        #Update guesses for next iteration
+        x0, x1 = x1, x_next
+    #If max iterations are reached without convergence return this dict
+    return {
+        "root": None,
+        "converged": False,
+        "iterations": maxiter}
