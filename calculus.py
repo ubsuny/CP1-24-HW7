@@ -294,21 +294,21 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
         "converged": res.converged,
         "iterations": res.iterations,
         "function_calls": res.function_calls}
-  
-  # Root Finding with Bisection Method
-  def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
+
+# Root Finding with Bisection Method
+def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
     """
     Wrapper for SciPy's `bisect` function.
 
     Parameters:
-        func (callable): The function for which to find the root.
-        a (float): The start of the interval.
-        b (float): The end of the interval.
-        tol (float, optional): The tolerance level for convergence. Defaults to 1e-6.
-        max_iter (int, optional): Maximum number of iterations. Defaults to 1000.
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Defaults to 1000.
 
     Returns:
-        float: The approximate root of the function.
+        Root: The approximate root of the function.
 
     Raises:
         ValueError: If func(a) and func(b) do not have opposite signs or if
@@ -337,13 +337,13 @@ def bisection_pure_python(func, a, b, tol=1e-6):
     Finds the root of func within the interval [a, b].
 
     Parameters:
-        func (callable): The function for which to find the root.
-        a (float): The start of the interval.
-        b (float): The end of the interval.
-        tol (float, optional): The tolerance level for convergence. Defaults to 1e-6.
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
 
     Returns:
-        float: The approximate root of the function.
+        Root: The approximate root of the function.
 
     Raises:
         ValueError: If func(a) and func(b) do not have opposite signs or if the function
@@ -379,4 +379,3 @@ def bisection_pure_python(func, a, b, tol=1e-6):
             a = root
 
     return root
-  
