@@ -1,11 +1,9 @@
 """
+calculus.py
 This module implements different integration and root finding algorithms
 """
 from scipy import optimize
-
-
 import numpy as np
-
 import scipy as sp
 # import matplotlib.pyplot as plt
 
@@ -14,6 +12,33 @@ def dummy():
     dummy function for template file
     """
     return 0
+
+def simpson(f, a, b, n):
+    """
+    Approximate the integral of the function f over the interval [a, b] using Simpson's rule.
+
+    Parameters:
+    f (function): The function to integrate.
+    a (float): The start of the interval.
+    b (float): The end of the interval.
+    n (int): The number of intervals (must be even). Default is 100.
+
+    Returns:
+    float: The approximate integral of f over [a, b].
+    """
+    h = (b - a) / n
+    i = np.arange(0, n)
+    # Ensure n is even
+    if n % 2 == 1:
+        n += 1
+
+    s = f(a) + f(b)
+    s += 4 * np.sum(f(a + i[1::2] * h))
+    s += 2 * np.sum(f(a + i[2:-1:2] * h))
+
+    # Compute the integral and return both the result and the updated value of n
+    integral = s * h / 3
+    return integral, n
 
 # Function that uses the tangent method for root-finding
 def root_tangent(function, fprime, x0):
@@ -31,6 +56,7 @@ def root_tangent(function, fprime, x0):
     (number): the desired root (zero) of the function
     """
     return optimize.newton(function, x0, fprime)
+
 
 def a_trap(y, d):
     """
@@ -295,3 +321,40 @@ def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
     right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
 
     return left_integral + right_integral
+  
+def secant_wrapper(func, x0, x1, args=(), maxiter=50):
+    """
+    Wrapper for the secant method using scipy.optimize.root_scalar.
+
+    Parameters:
+    func : The function for which the root is to be found.
+    x0 : The first initial guess (Ideally close to, but less than, the root)
+    x1 : The second initial guess (Ideally close to, but greater than, the root)
+    args : Additional arguments to pass to the function. Must be a tuple
+    tol : Optional tolerance deciding when to stop function (default is 1e-6).
+    maxiter : The maximum number of iterations if convergence is not met (default is 50).
+
+    Returns:
+    A dictionary containing:
+        - 'root': The estimated root.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': Number of iterations performed.
+        - 'function_calls': Number of function evaluations performed.
+    """
+
+    #Use the secant method
+    res = optimize.root_scalar(
+        func,
+        args=args,
+        method="secant",
+        x0=x0,
+        x1=x1,
+        xtol=1e-6,
+        maxiter=maxiter)
+
+    #Return a callable dictionary
+    return {
+        "root": res.root if res.converged else None,
+        "converged": res.converged,
+        "iterations": res.iterations,
+        "function_calls": res.function_calls}
