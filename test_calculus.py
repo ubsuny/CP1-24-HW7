@@ -17,34 +17,39 @@ def test_simpson():
     # Use an assertion to check if the result is close to the expected value
     assert np.isclose(result, 2), f"Expected 2, but got {result}. Updated n: {updated_n}"
 
-def test_constant_function(self):
+def test_constant_function():
     """Integral of f(x) = 1 from 0 to 1 is 1"""
     result = calc.simpsons_rule(lambda x: 1, 0, 1, 10)
-    self.assertAlmostEqual(result, 1, places=5)
+    assert math.isclose(result, 1, rel_tol=1e-5)
 
-def test_linear_function(self):
+
+def test_linear_function():
     """Integral of f(x) = x from 0 to 1 is 0.5"""
     result = calc.simpsons_rule(lambda x: x, 0, 1, 10)
-    self.assertAlmostEqual(result, 0.5, places=5)
+    assert math.isclose(result, 0.5, rel_tol=1e-5)
 
-def test_quadratic_function(self):
+
+def test_quadratic_function():
     """Integral of f(x) = x^2 from 0 to 1 is 1/3"""
     result = calc.simpsons_rule(lambda x: x**2, 0, 1, 10)
-    self.assertAlmostEqual(result, 1/3, places=5)
+    assert math.isclose(result, 1 / 3, rel_tol=1e-5)
 
-def test_sine_function(self):
+
+def test_sine_function():
     """Integral of f(x) = sin(x) from 0 to pi is 2"""
     result = calc.simpsons_rule(math.sin, 0, math.pi, 100)
-    self.assertAlmostEqual(result, 2, places=5)
+    assert math.isclose(result, 2, rel_tol=1e-5)
 
-def test_invalid_subintervals(self):
+
+def test_invalid_subintervals():
     """Testing invalid subintervals"""
-    with self.assertRaises(ValueError):
+    with pytest.raises(ValueError):
         calc.simpsons_rule(lambda x: x, 0, 1, 3)
 
-def test_negative_subintervals(self):
+
+def test_negative_subintervals():
     """Testing negative subintervals"""
-    with self.assertRaises(ValueError):
+    with pytest.raises(ValueError):
         calc.simpsons_rule(lambda x: x, 0, 1, -2)
 
 def func_1(x):
