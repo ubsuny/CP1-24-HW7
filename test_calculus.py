@@ -40,6 +40,18 @@ def func_1_prime(x):
     """
     return 2 * x
 
+def exp_minus_one_by_x(x):
+    '''
+    defining a function that raises divide by zero at x=0
+
+    Parameters:
+    - x: function argument
+
+    Returns:
+    - numerical value of exp(-1/x)
+    '''
+    return np.exp(-1/x)
+
 @pytest.fixture(name = "initial_guess_1")
 def func_1_x_0():
     """
@@ -71,6 +83,7 @@ def test_trapezoid_numpy():
     Unit test for numpy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_numpy(np.sin, 0, np.pi), 2)
+    assert np.isclose(calc.trapezoid_numpy(exp_minus_one_by_x, 0, 1), 0.148496)
 
 def test_trapezoid_scipy():
     '''
@@ -96,3 +109,13 @@ def test_adaptive_trap_py(f, a, b, tol, expected):
     """Unit test for adaptive trap pure python"""
     result = calc.adaptive_trap_py(f, a, b, tol)
     assert abs(result - expected) < 1e-6, f"Failed for f={f}, a={a}, b={b}, tol={tol}"
+
+    assert np.isclose(calc.trapezoid_scipy(exp_minus_one_by_x, 0, 1), 0.148496)
+
+def test_trapezoid_python():
+    '''
+    Unit test for pure python implementation of trapezoid method
+    '''
+    assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
+    assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
+

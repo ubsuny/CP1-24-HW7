@@ -163,10 +163,10 @@ def adapt(func, bounds, d, sens):
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using numpy wrapper function
-    by evaluating the integral of the input function over the limits given
+    by evaluating the integral of the input function over the limits given, and
     in the input number of steps and gives as output the integral value in numpy 
     floating point decimal. If the input function is infinite at any point that point
-    is modified to a slightly higher value.
+    is modified to a slightly different value.
 
     Parameters:
     - func: integrand (could be a custom defined function or a standard function like np.sin)
@@ -197,17 +197,17 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     plt.legend()
     '''
 
-    # check if the integrand is infinite at lower limit, if yes slightly change the limit
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
     try:
         func(l_lim)
     except ZeroDivisionError:
         l_lim += 0.000000001
 
-    # check if the integrand is infinite at upper limit, if yes slightly change the limit
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
     try:
         func(u_lim)
     except ZeroDivisionError:
-        u_lim += 0.000000001
+        u_lim -= 0.000000001
 
     x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
 
@@ -225,10 +225,10 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
 def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using scipy wrapper function
-    by evaluating the integral of the input function over the limits given
+    by evaluating the integral of the input function over the limits given, and
     in the input number of steps and gives as output the integral value in numpy 
     floating point decimal. If the input function is infinite at any point that point
-    is modified to a slightly higher value.
+    is modified to a slightly different value.
 
     Parameters:
     - func: integrand(could be a custom defined function or a standard function like np.sin)
@@ -259,17 +259,17 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     plt.legend()
     '''
 
-    # check if the integrand is infinite at lower limit, if yes slightly change the limit
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
     try:
         func(l_lim)
     except ZeroDivisionError:
         l_lim += 0.000000001
 
-    # check if the integrand is infinite at upper limit, if yes slightly change the limit
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
     try:
         func(u_lim)
     except ZeroDivisionError:
-        u_lim += 0.000000001
+        u_lim -= 0.000000001
 
     x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
 
@@ -321,6 +321,55 @@ def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
     right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
 
     return left_integral + right_integral
+  
+def trapezoid_python(func, l_lim, u_lim, steps=10000):
+    '''
+    This function implements trapezoidal rule by a pure python implementation
+    by evaluating the integral of the input function over the limits given, and
+    in the input number of steps and gives as output the integral value in numpy 
+    floating point decimal. If the input function is infinite at any point that point
+    is modified to a slightly different value.
+
+    Parameters:
+    - func: integrand (could be a custom defined function or a standard function like np.sin)
+    - l_lim: lower limit of integration
+    - u_lim: upper limit of integration
+    - steps: number of steps (default value 10000)
+
+    Returns:
+    - integral of the input function using numpy.trapezoid function
+
+    The plotting functionality can be incorporated just like in trapezoid_numpy()
+    or trapezoid_scipy()
+    '''
+
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
+    try:
+        func(l_lim)
+    except ZeroDivisionError:
+        l_lim += 0.000000001
+
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
+    try:
+        func(u_lim)
+    except ZeroDivisionError:
+        u_lim -= 0.000000001
+
+    x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
+
+    for i, xi in enumerate((x)):
+        # check if the integrand is infinite at any x, if yes slightly change the x value
+        try:
+            func(xi)
+        except ZeroDivisionError:
+            x[i] += 0.000000001
+
+    y = func(x) # evaluate the function on the modified grid
+    h = (u_lim - l_lim)/steps   # step size
+    # calculate the integral using the trapezoidal algorithm
+    integral_value = (h/2)*(y[0] + y[-1] + 2 * np.sum(y[1:-1]))
+    return integral_value
+
 
 def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     """
