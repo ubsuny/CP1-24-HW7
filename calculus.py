@@ -2,9 +2,8 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-
+from scipy import optimize
 import numpy as np
-
 import scipy as sp
 # import matplotlib.pyplot as plt
 
@@ -40,6 +39,24 @@ def simpson(f, a, b, n):
     # Compute the integral and return both the result and the updated value of n
     integral = s * h / 3
     return integral, n
+
+# Function that uses the tangent method for root-finding
+def root_tangent(function, fprime, x0):
+    """
+    A function that takes a function, its derivative, and an initial guess
+    to estimate the root closest to that initial guess
+
+    Parameters:
+    Inputs:
+    function (function): a function that defines a mathematically specific functional form
+    fprime (function): a function that defines the mathematically functional form of the
+                        function's derivative
+    x0: an initial guess that's as close as possible to one of the roots
+    Outputs:
+    (number): the desired root (zero) of the function
+    """
+    return optimize.newton(function, x0, fprime)
+
 
 def a_trap(y, d):
     """
@@ -266,3 +283,40 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     y = func(x)    # evaluate the function on the modified grid
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
     return integral_value
+
+def secant_wrapper(func, x0, x1, args=(), maxiter=50):
+    """
+    Wrapper for the secant method using scipy.optimize.root_scalar.
+
+    Parameters:
+    func : The function for which the root is to be found.
+    x0 : The first initial guess (Ideally close to, but less than, the root)
+    x1 : The second initial guess (Ideally close to, but greater than, the root)
+    args : Additional arguments to pass to the function. Must be a tuple
+    tol : Optional tolerance deciding when to stop function (default is 1e-6).
+    maxiter : The maximum number of iterations if convergence is not met (default is 50).
+
+    Returns:
+    A dictionary containing:
+        - 'root': The estimated root.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': Number of iterations performed.
+        - 'function_calls': Number of function evaluations performed.
+    """
+
+    #Use the secant method
+    res = optimize.root_scalar(
+        func,
+        args=args,
+        method="secant",
+        x0=x0,
+        x1=x1,
+        xtol=1e-6,
+        maxiter=maxiter)
+
+    #Return a callable dictionary
+    return {
+        "root": res.root if res.converged else None,
+        "converged": res.converged,
+        "iterations": res.iterations,
+        "function_calls": res.function_calls}
