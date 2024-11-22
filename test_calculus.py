@@ -7,12 +7,12 @@ import numpy as np
 import calculus as calc
 # Define the function to integrate outside the test function
 
-def test_scipy_simpson():
+def test_wrapper_simpson():
     """
     test the scipy implementation for simpson method
     """
-    result = calc.scipy_simpson(np.sin, 0, np.pi)
-    print(f"Result of scipy_simpson: {result}")  # Debugging: Print the result
+    result = calc.wrapper_simpson(np.sin, 0, np.pi)
+    print(f"Result of wrapper_simpson: {result}")  # Debugging: Print the result
     # Use an assertion to check if the result is close to the expected value
     assert np.isclose(result, 2), f"Expected 2, but got {result}"
 
