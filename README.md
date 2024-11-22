@@ -68,7 +68,7 @@ y(x) = \tanh(x) \textrm{ and}
 $$
 
 $$
-y(x) = \tanh(x).
+y(x) = \sin(x).
 $$
 
 You can only use functions from `calculus.py`.
