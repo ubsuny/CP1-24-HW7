@@ -11,8 +11,9 @@ def test_scipy_simpson():
     """
     test the scipy implementation for simpson method
     """
+    result = calc.scipy_simpson(np.sin, 0, np.pi)
+    print(f"Result of scipy_simpson: {result}")  # Debugging: Print the result
     # Use an assertion to check if the result is close to the expected value
-    result = calc.scipy_simpson(np.sin, 0, np.pi, 100)
     assert np.isclose(result, 2), f"Expected 2, but got {result}"
 
 def func_1(x):
