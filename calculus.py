@@ -8,7 +8,7 @@ import scipy as sp
 from scipy.integrate import simpson
 
 # General function to integrate
-def scipy_simpson(f, a, b, n=100):
+def wrapper_simpson(f, a, b, n=100):
     """
     Integrate a function `f` over the interval [a, b] using Simpson's rule.
     
