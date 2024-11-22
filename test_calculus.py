@@ -75,7 +75,6 @@ def test_secant_pure_matches_scipy():
 
     def dummyfunc(x,a):
         return x-a
-    
     wrap = calc.secant_wrapper(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
     pure = calc.secant_pure_python(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
 
@@ -89,7 +88,6 @@ def test_secant_pure_gets_root():
 
     def dummyfunc(x,a):
         return x-a
-    
     pure = calc.secant_pure_python(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
 
     assert np.isclose(pure['root'],1)
@@ -102,6 +100,5 @@ def test_secant_wrapper_doesnt_converge():
 
     def quadratic(x,a,b,c):
         return a*x**2 + b*x + c
-    
-    assert calc.secant_wrapper(quadratic, x0=0, x1 = 1, args=(1,0,1), maxiter = 50)['converged'] == False
-
+    assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
+                               args=(1,0,1), maxiter = 50)['converged'] is False
