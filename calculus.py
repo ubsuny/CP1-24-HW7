@@ -321,7 +321,7 @@ def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
     right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
 
     return left_integral + right_integral
-  
+
 def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     """
     Wrapper for the secant method using scipy.optimize.root_scalar.
