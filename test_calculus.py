@@ -118,4 +118,4 @@ def test_trapezoid_python():
     '''
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
-
+    
