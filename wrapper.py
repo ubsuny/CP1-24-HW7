@@ -16,11 +16,8 @@ def adapt(func, bounds, d, sens):
     """
     adapt uses adaptive trapezoidal integration
     to integrate a function over boundaries.
-    func must be a str defining the function
-    to be integrated. May be:
-    x^3+1
-    exp(-1/x)
-    cos(1/x)
+    func must be function which outputs a list
+    of its values.
     bounds is a list of length two which defines
     the lower and upper bounds of integration
     d defines the number of points between
@@ -30,7 +27,7 @@ def adapt(func, bounds, d, sens):
     how the function changes. 
     """
     #The x is defined as a linspace which is used to define
-    #the derivative of the function for each point x
+    #the second derivative of the function for each point x
     #between the bounds
     x=np.linspace(bounds[0], bounds[1], d+1)
     dx=x[1]-x[0]
