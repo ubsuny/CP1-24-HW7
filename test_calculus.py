@@ -156,3 +156,27 @@ def test_trapezoid_python():
     '''
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
+def test_simpson_func1():
+    """
+    Test Simpson's Rule for exp(-1/x) on [0.01, 10].
+    """
+    result, steps = calc.simpson(calc.func1, 0.01, 10, 1000)
+    assert abs(result - 7.22545022194032) < 1e-6, f"Simpson failed for func1, got {result}"
+    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
+
+def test_simpson_func2():
+    """
+    Test Simpson's Rule for cos(1/x) on [0.01, 3π].
+    """
+    result, steps = calc.simpson(calc.func2, 0.01, 3 * np.pi, 1000)
+    assert abs(result - 7.9151669636874225) < 1e-6, f"Simpson failed for func2, got {result}"
+    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
+
+def test_simpson_func3():
+    """
+    Test Simpson's Rule for x³ + 1 on [-1, 1].
+    """
+    result, steps = calc.simpson(calc.func3, -1, 1, 1000)
+    assert abs(result - 2.0) < 1e-6, f"Simpson failed for func3, got {result}"
+    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
+
