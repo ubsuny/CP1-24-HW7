@@ -11,10 +11,7 @@ def test_wrapper_simpson():
     """
     test the scipy implementation for simpson method
     """
-    result = calc.wrapper_simpson(np.sin, 0, np.pi)
-    print(f"Result of wrapper_simpson: {result}")  # Debugging: Print the result
-    # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(result, 2), f"Expected 2, but got {result}"
+    assert np.isclose(calc.wrapper_scipy(np.sin, 0, np.pi), 2)
 
 def func_1(x):
     """
