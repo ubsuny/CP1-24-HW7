@@ -16,16 +16,6 @@ def test_wrapper_simpson():
     # Use an assertion to check if the result is close to the expected value
     assert np.isclose(result, 2), f"Expected 2, but got {result}"
 
-def test_simpson():
-    """
-    Unit test simpson method
-    """
-    # Call the simpson function and unpack the result
-    result, updated_n = calc.simpson(np.sin, 0, np.pi, 100)
-
-    # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(result, 2), f"Expected 2, but got {result}. Updated n: {updated_n}"
-
 def func_1(x):
     """
     A simple function to be used for testing
