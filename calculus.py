@@ -455,28 +455,21 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "iterations": maxiter}
 def calculate_integrals():
     """
-    Calculate integrals of the three given functions using Simpson's Rule, 
-    Trapezoidal Rule, and Adaptive Trapezoidal Rule.
-    Print the results for each method and function.
+    Calculate integrals of the three given functions using Simpson's Rule.
+    Print the results for each function.
     """
-    print("Calculating integrals for given functions and boundaries...\n")
+    print("Calculating integrals using Simpson's Rule...\n")
 
     # exp(-1/x) on [0.01, 10]
     print("Function: exp(-1/x) on [0.01, 10]")
-    print(f"Simpson's Rule: {simpson(func1, 0.01, 10, 1000)[0]}")  # Extract only the result
-    print(f"Trapezoidal Rule: {trapezoid(func1, 0.01, 10, 1000)}")
-    print(f"Adaptive Trapezoidal Rule: {adaptive_trap_py(func1, 0.01, 10, tol=1e-6)}\n")
+    print(f"Simpson's Rule: {simpson(func1, 0.01, 10, 1000)}\n")
 
     # cos(1/x) on [0.01, 3π]
     print("Function: cos(1/x) on [0.01, 3π]")
-    print(f"Simpson's Rule: {simpson(func2, 0.01, 3 * np.pi, 1000)[0]}")  # Extract only the result
-    print(f"Trapezoidal Rule: {trapezoid(func2, 0.01, 3 * np.pi, 1000)}")
-    print(f"Adaptive Trapezoidal Rule: {adaptive_trap_py(func2, 0.01, 3 * np.pi, tol=1e-6)}\n")
+    print(f"Simpson's Rule: {simpson(func2, 0.01, 3 * np.pi, 1000)}\n")
 
     # x³ + 1 on [-1, 1]
     print("Function: x³ + 1 on [-1, 1]")
-    print(f"Simpson's Rule: {simpson(func3, -1, 1, 1000)[0]}")  # Extract only the result
-    print(f"Trapezoidal Rule: {trapezoid(func3, -1, 1, 1000)}")
-    print(f"Adaptive Trapezoidal Rule: {adaptive_trap_py(func3, -1, 1, tol=1e-6)}")
+    print(f"Simpson's Rule: {simpson(func3, -1, 1, 1000)}")
 if __name__ == "__main__":
     calculate_integrals()
