@@ -78,6 +78,74 @@ def test_root_tangent(initial_guess_1):
     compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
     assert np.isclose(compare, 0.0, atol = 1.0e-6)
 
+def test_convergence_tangent():
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=3)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-6) == 2
+
+def test_negative_root_tangent():
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=-3)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-6) == -2
+
+def test_non_convergence_tangent():
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=1000, maxiter=5)
+    assert result['converged'] is False
+    assert result['iterations'] == 5
+
+def test_zero_div_tangent():
+    def func(x):
+        return x**3 - 6*x**2 + 11*x - 6  # Roots at x=1, 2, and 3
+
+    def fprime(x):
+        return 0  # Derivative is zero (forces division by zero)
+
+    result = calc.tangent_pure_python(func, fprime, x0=1)
+    assert result['converged'] is False
+    assert result['root'] is None
+    assert 'message' in result
+    assert result['message'] == "Derivative too close to zero, division by zero encountered."
+
+def test_tolerance_control_tangent():
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=3, tol=1e-10)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-10) == 2
+
+def test_zero_root_tangent():
+    def func(x):
+        return x**3
+
+    def fprime(x):
+        return 3*x**2
+
+    result = calc.tangent_pure_python(func, fprime, x0=0.1)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-6) == 0
+
 def test_trapezoid_numpy():
     '''
     Unit test for numpy implementation of trapezoid method
