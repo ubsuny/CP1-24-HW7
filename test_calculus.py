@@ -6,16 +6,13 @@ import math
 import pytest
 import numpy as np
 import calculus as calc
+# Define the function to integrate outside the test function
 
-def test_simpson():
+def test_wrapper_simpson():
     """
-    Unit test simpson method
+    test the scipy implementation for simpson method
     """
-    # Call the simpson function and unpack the result
-    result, updated_n = calc.simpson(np.sin, 0, np.pi, 100)
-
-    # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(result, 2), f"Expected 2, but got {result}. Updated n: {updated_n}"
+    assert np.isclose(calc.wrapper_simpson(np.sin, 0, np.pi), 2)
 
 def func_1(x):
     """

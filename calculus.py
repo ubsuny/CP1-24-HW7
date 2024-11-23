@@ -2,10 +2,42 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
+
 import math
-from scipy import optimize
 import numpy as np
+from scipy import optimize
 import scipy as sp
+from scipy.integrate import simpson
+
+# General function to integrate
+def wrapper_simpson(f, a, b, n=100):
+    """
+    Integrate a function `f` over the interval [a, b] using Simpson's rule.
+    
+    Parameters:
+        f (function): The function to integrate.
+        a (float): The lower limit of the integration.
+        b (float): The upper limit of the integration.
+        n (int): Number of points to sample for Simpson's rule. Default is 100.
+        
+    Returns:
+        float: The approximate integral value.
+    """
+    # Ensure the number of intervals is even
+    if n % 2 == 1:
+        n += 1  # Make n even by adding 1 if it's odd
+
+    # Generate the x values (evenly spaced points) between a and b
+    x = np.linspace(a, b, n+1)
+
+    # Evaluate the function at the x points
+    y = f(x)
+
+    # Apply Simpson's rule
+    result = simpson(y, x=x)
+
+    return result
+
 # import matplotlib.pyplot as plt
 
 def dummy():
@@ -13,33 +45,6 @@ def dummy():
     dummy function for template file
     """
     return 0
-
-def simpson(f, a, b, n):
-    """
-    Approximate the integral of the function f over the interval [a, b] using Simpson's rule.
-
-    Parameters:
-    f (function): The function to integrate.
-    a (float): The start of the interval.
-    b (float): The end of the interval.
-    n (int): The number of intervals (must be even). Default is 100.
-
-    Returns:
-    float: The approximate integral of f over [a, b].
-    """
-    h = (b - a) / n
-    i = np.arange(0, n)
-    # Ensure n is even
-    if n % 2 == 1:
-        n += 1
-
-    s = f(a) + f(b)
-    s += 4 * np.sum(f(a + i[1::2] * h))
-    s += 2 * np.sum(f(a + i[2:-1:2] * h))
-
-    # Compute the integral and return both the result and the updated value of n
-    integral = s * h / 3
-    return integral, n
 
 # Function that uses the tangent method for root-finding
 def root_tangent(function, fprime, x0):
