@@ -11,7 +11,7 @@ def test_wrapper_simpson():
     """
     test the scipy implementation for simpson method
     """
-    assert np.isclose(calc.wrapper_scipy(np.sin, 0, np.pi), 2)
+    assert np.isclose(calc.wrapper_simpson(np.sin, 0, np.pi), 2)
 
 def func_1(x):
     """
