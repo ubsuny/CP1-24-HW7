@@ -286,6 +286,44 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
     return integral_value
 
+def trapezoid(f, a, b, n):
+    """
+    Compute the trapezoidal approximation of an integral.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    n (int): Number of subdivisions.
+    """
+    h = (b - a) / n
+    x = [a + i * h for i in range(n + 1)]
+    y = [f(xi) for xi in x]
+    return (h / 2) * (y[0] + 2 * sum(y[1:-1]) + y[-1])
+
+
+def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
+    """
+    Compute an integral using the adaptive trapezoid method.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    tol (float): Tolerance for stopping condition.
+    remaining_depth (int): Remaining recursion depth to avoid infinite recursion.
+    """
+    integral1 = trapezoid(f, a, b, n=1)
+
+    integral2 = trapezoid(f, a, b, n=2)
+
+    if abs(integral2 - integral1) < tol or remaining_depth <= 0:
+        return integral2
+
+    mid = (a + b) / 2
+    left_integral = adaptive_trap_py(f, a, mid, tol / 2, remaining_depth - 1)
+    right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
+
+    return left_integral + right_integral
+
 def trapezoid_python(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule by a pure python implementation
@@ -343,7 +381,6 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     x0 : The first initial guess (Ideally close to, but less than, the root)
     x1 : The second initial guess (Ideally close to, but greater than, the root)
     args : Additional arguments to pass to the function. Must be a tuple
-    tol : Optional tolerance deciding when to stop function (default is 1e-6).
     maxiter : The maximum number of iterations if convergence is not met (default is 50).
 
     Returns:
@@ -455,3 +492,50 @@ def bisection_pure_python(func, a, b, tol=1e-6):
             a = root
 
     return root
+
+def secant_pure_python(func, x0, x1, args=(), maxiter=50):
+    """
+    Pure Python method for the secant method of root finding.
+
+    Parameters:
+    func : The function for which the root is to be found.
+    x0 : The first initial guess (Ideally close to, but less than, the root)
+    x1 : The second initial guess (Ideally close to, but greater than, the root)
+    args : Additional arguments to pass to the function. Must be a tuple
+    maxiter : The maximum number of iterations if convergence is not met (default is 50).
+
+    Returns:
+    A dictionary containing:
+        - 'root': The estimated root.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': Number of iterations performed.
+    """
+
+    for i in range(maxiter):
+        #Evaluate function values
+        f0 = func(x0, *args)
+        f1 = func(x1, *args)
+        #Prevent division by zero. If division by zero occurs, return this dict
+        # If no division by zero, move to next dict
+        if abs(f1 - f0) < 1e-12:
+            return {
+                "root": None,
+                "converged": False,
+                "iterations": i}
+        #Secant method formula
+        x_next = x1 - f1 * (x1 - x0) / (f1 - f0)
+        #Check convergence. If converged return this dict
+        #  Add one to iterations until iteration = maxiter
+        if abs(x_next - x1) < 1e-6:
+            return {
+                "root": x_next,
+                "converged": True,
+                "iterations": i + 1}
+        #Update guesses for next iteration
+        x0, x1 = x1, x_next
+    #If max iterations are reached without convergence return this dict
+    return {
+        "root": None,
+        "converged": False,
+        "iterations": maxiter}
+ 

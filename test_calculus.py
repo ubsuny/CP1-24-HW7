@@ -90,7 +90,65 @@ def test_trapezoid_scipy():
     Unit test for scipy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
+
+@pytest.mark.parametrize("f, a, b, n, expected", [
+    (lambda x: x**2, 0, 1, 100, 1/3),
+    (lambda x: x ** 2, 0, 1, 100, 1/3),
+])
+def test_trapezoid(f, a, b, n, expected):
+    """Unit test for trapezoid pure python"""
+    result = calc.trapezoid(f, a, b, n)
+    assert abs(result - expected) < 1e-4, f"Failed for f={f}, a={a}, b={b}, n={n}"
+
+@pytest.mark.parametrize("f, a, b, tol, expected", [
+    (lambda x: x**2, 0, 1, 1e-6, 1/3),
+    (lambda x: x**2, 0, 1, 1e-6, 1/3),
+    (lambda x: 1/(1 + x**2), 0, 1, 1e-6, 3.141592653589793 / 4),
+])
+def test_adaptive_trap_py(f, a, b, tol, expected):
+    """Unit test for adaptive trap pure python"""
+    result = calc.adaptive_trap_py(f, a, b, tol)
+    assert abs(result - expected) < 1e-6, f"Failed for f={f}, a={a}, b={b}, tol={tol}"
+
     assert np.isclose(calc.trapezoid_scipy(exp_minus_one_by_x, 0, 1), 0.148496)
+
+def test_secant_pure_matches_scipy():
+    '''
+    Unit test to check if scipy and pure python implementation of
+    secant root finding method yield equivalent results.
+    '''
+
+    def dummyfunc(x,a):
+        return x-a
+    wrap = calc.secant_wrapper(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
+    pure = calc.secant_pure_python(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
+
+    assert np.isclose(wrap['root'], pure['root'])
+
+def test_secant_pure_gets_root():
+    '''
+    Unit test to check if pure python implementation of
+    secant root finding method yields correct value.
+    '''
+
+    def dummyfunc(x,a):
+        return x-a
+    pure = calc.secant_pure_python(dummyfunc, x0=0, x1 = 4, args=(1,), maxiter = 50)
+
+    assert np.isclose(pure['root'],1)
+
+@pytest.mark.filterwarnings("ignore:Tolerance of.*:RuntimeWarning")
+def test_secant_wrapper_doesnt_converge():
+    '''
+    Unit test to check if scipy secant root finder wrapper 
+    returns no convergence when there is no root
+    '''
+
+    def quadratic(x,a,b,c):
+        return a*x**2 + b*x + c
+    assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
+                               args=(1,0,1), maxiter = 50)['converged'] is False
+
 
 def test_trapezoid_python():
     '''
