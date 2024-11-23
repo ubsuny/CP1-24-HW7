@@ -4,7 +4,6 @@ This module implements different integration and root finding algorithms
 """
 import math
 from scipy import optimize
-from scipy.optimize import bisect
 import numpy as np
 import scipy as sp
 # import matplotlib.pyplot as plt
@@ -437,14 +436,14 @@ def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
             raise ValueError(f"Singularity detected: division by zero in function at x = {b}.")
 
         # Call the SciPy bisect method if no errors were raised
-        root = bisect(func, a, b, xtol=tol, maxiter=max_iter)
+        root = optimize.bisect(func, a, b, xtol=tol, maxiter=max_iter)
 
     except ValueError as e:
         raise ValueError(f"SciPy bisect failed: {e}") from e
 
     return root
 
-def bisection_pure_python(func, a, b, tol=1e-6):
+def bisection_pure_python(func, a, b, tol=1e-6, max_iter=1000):
     """
     Pure Python implementation of the bisection method.
     Finds the root of func within the interval [a, b].
@@ -454,15 +453,17 @@ def bisection_pure_python(func, a, b, tol=1e-6):
         a: The start of the interval.
         b: The end of the interval.
         tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Default is 1000.
 
     Returns:
         Root: The approximate root of the function.
 
     Raises:
-        ValueError: If func(a) and func(b) do not have opposite signs or if the function
-                    encounters singularities (undefined values at the interval endpoints).
+        ValueError: If no root is detected in the initial interval.
+        RuntimeError: If the method exceeds the maximum number of iterations.
     """
-    # Check if the function values at a and b are of opposite signs
+
+    # Check if the initial interval is valid
     if func(a) * func(b) >= 0:
         raise ValueError("The function must have opposite signs at a and b.")
 
@@ -471,9 +472,14 @@ def bisection_pure_python(func, a, b, tol=1e-6):
         raise ValueError(f"Singularity detected: sin(a) = {math.sin(a)}, sin(b) = {math.sin(b)}")
 
     root = (a + b) / 2
-    print(f"Initial root estimate: {root}")  # Debugging: Initial root estimate
+    iteration_count = 0  # Track the number of iterations
 
     while (b - a) / 2 > tol:
+        # Check for maximum iterations
+        if iteration_count >= max_iter:
+            raise RuntimeError(f"Bisection method exceeded maximum iterations ({max_iter}).")
+
+        iteration_count += 1
         root = (a + b) / 2
         value_at_root = func(root)
 
