@@ -32,7 +32,7 @@ def wrapper_simpson(f, a, b, n=100):
     y = f(x)
 
     # Apply Simpson's rule
-    result = simpson(y, x=x, x[1]-x[0], -1)
+    result = simpson(y, x=x)
 
     return result
 
