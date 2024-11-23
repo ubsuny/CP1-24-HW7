@@ -46,6 +46,34 @@ def dummy():
     """
     return 0
 
+def simpsons_rule(func, a, b, n):
+    """
+    Approximate the integral of `func` from `a` to `b` using Simpson's Rule.
+
+    Parameters:
+        func (callable): The function to integrate.
+        a (float): The start point of the interval.
+        b (float): The end point of the interval.
+        n (int): The number of subintervals (must be even).
+
+    Returns:
+        float: The approximate integral of the function.
+    """
+    if n % 2 != 0:
+        raise ValueError("The number of subintervals `n` must be even.")
+    if n <= 0:
+        raise ValueError("The number of subintervals `n` must be positive.")
+
+    h = (b - a) / n
+    x = [a + i * h for i in range(n + 1)]
+    y = [func(xi) for xi in x]
+
+    integral = y[0] + y[-1]
+    integral += 4 * sum(y[i] for i in range(1, n, 2))
+    integral += 2 * sum(y[i] for i in range(2, n - 1, 2))
+    integral *= h / 3
+    return integral
+
 # Function that uses the tangent method for root-finding
 def root_tangent(function, fprime, x0):
     """

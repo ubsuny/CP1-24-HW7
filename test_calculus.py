@@ -14,6 +14,41 @@ def test_wrapper_simpson():
     """
     assert np.isclose(calc.wrapper_simpson(np.sin, 0, np.pi), 2)
 
+def test_constant_function():
+    """Integral of f(x) = 1 from 0 to 1 is 1"""
+    result = calc.simpsons_rule(lambda x: 1, 0, 1, 10)
+    assert math.isclose(result, 1, rel_tol=1e-5)
+
+
+def test_linear_function():
+    """Integral of f(x) = x from 0 to 1 is 0.5"""
+    result = calc.simpsons_rule(lambda x: x, 0, 1, 10)
+    assert math.isclose(result, 0.5, rel_tol=1e-5)
+
+
+def test_quadratic_function():
+    """Integral of f(x) = x^2 from 0 to 1 is 1/3"""
+    result = calc.simpsons_rule(lambda x: x**2, 0, 1, 10)
+    assert math.isclose(result, 1 / 3, rel_tol=1e-5)
+
+
+def test_sine_function():
+    """Integral of f(x) = sin(x) from 0 to pi is 2"""
+    result = calc.simpsons_rule(math.sin, 0, math.pi, 100)
+    assert math.isclose(result, 2, rel_tol=1e-5)
+
+
+def test_invalid_subintervals():
+    """Testing invalid subintervals"""
+    with pytest.raises(ValueError):
+        calc.simpsons_rule(lambda x: x, 0, 1, 3)
+
+
+def test_negative_subintervals():
+    """Testing negative subintervals"""
+    with pytest.raises(ValueError):
+        calc.simpsons_rule(lambda x: x, 0, 1, -2)
+
 def func_1(x):
     """
     A simple function to be used for testing
