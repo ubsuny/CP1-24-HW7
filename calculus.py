@@ -2,6 +2,8 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
+
+import math
 import numpy as np
 from scipy import optimize
 import scipy as sp
@@ -167,10 +169,10 @@ def adapt(func, bounds, d, sens):
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using numpy wrapper function
-    by evaluating the integral of the input function over the limits given
+    by evaluating the integral of the input function over the limits given, and
     in the input number of steps and gives as output the integral value in numpy 
     floating point decimal. If the input function is infinite at any point that point
-    is modified to a slightly higher value.
+    is modified to a slightly different value.
 
     Parameters:
     - func: integrand (could be a custom defined function or a standard function like np.sin)
@@ -201,17 +203,17 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     plt.legend()
     '''
 
-    # check if the integrand is infinite at lower limit, if yes slightly change the limit
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
     try:
         func(l_lim)
     except ZeroDivisionError:
         l_lim += 0.000000001
 
-    # check if the integrand is infinite at upper limit, if yes slightly change the limit
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
     try:
         func(u_lim)
     except ZeroDivisionError:
-        u_lim += 0.000000001
+        u_lim -= 0.000000001
 
     x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
 
@@ -229,10 +231,10 @@ def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
 def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     '''
     This function implements trapezoidal rule using scipy wrapper function
-    by evaluating the integral of the input function over the limits given
+    by evaluating the integral of the input function over the limits given, and
     in the input number of steps and gives as output the integral value in numpy 
     floating point decimal. If the input function is infinite at any point that point
-    is modified to a slightly higher value.
+    is modified to a slightly different value.
 
     Parameters:
     - func: integrand(could be a custom defined function or a standard function like np.sin)
@@ -263,17 +265,17 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     plt.legend()
     '''
 
-    # check if the integrand is infinite at lower limit, if yes slightly change the limit
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
     try:
         func(l_lim)
     except ZeroDivisionError:
         l_lim += 0.000000001
 
-    # check if the integrand is infinite at upper limit, if yes slightly change the limit
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
     try:
         func(u_lim)
     except ZeroDivisionError:
-        u_lim += 0.000000001
+        u_lim -= 0.000000001
 
     x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
 
@@ -288,6 +290,92 @@ def trapezoid_scipy(func, l_lim, u_lim, steps=10000):
     integral_value = sp.integrate.trapezoid(y, x)   # calculate the integral using numpy
     return integral_value
 
+def trapezoid(f, a, b, n):
+    """
+    Compute the trapezoidal approximation of an integral.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    n (int): Number of subdivisions.
+    """
+    h = (b - a) / n
+    x = [a + i * h for i in range(n + 1)]
+    y = [f(xi) for xi in x]
+    return (h / 2) * (y[0] + 2 * sum(y[1:-1]) + y[-1])
+
+
+def adaptive_trap_py(f, a, b, tol, remaining_depth=10):
+    """
+    Compute an integral using the adaptive trapezoid method.
+    Parameters:
+    f (callable): Function to integrate.
+    a (float): Lower bound of integration.
+    b (float): Upper bound of integration.
+    tol (float): Tolerance for stopping condition.
+    remaining_depth (int): Remaining recursion depth to avoid infinite recursion.
+    """
+    integral1 = trapezoid(f, a, b, n=1)
+
+    integral2 = trapezoid(f, a, b, n=2)
+
+    if abs(integral2 - integral1) < tol or remaining_depth <= 0:
+        return integral2
+
+    mid = (a + b) / 2
+    left_integral = adaptive_trap_py(f, a, mid, tol / 2, remaining_depth - 1)
+    right_integral = adaptive_trap_py(f, mid, b, tol / 2, remaining_depth - 1)
+
+    return left_integral + right_integral
+
+def trapezoid_python(func, l_lim, u_lim, steps=10000):
+    '''
+    This function implements trapezoidal rule by a pure python implementation
+    by evaluating the integral of the input function over the limits given, and
+    in the input number of steps and gives as output the integral value in numpy 
+    floating point decimal. If the input function is infinite at any point that point
+    is modified to a slightly different value.
+
+    Parameters:
+    - func: integrand (could be a custom defined function or a standard function like np.sin)
+    - l_lim: lower limit of integration
+    - u_lim: upper limit of integration
+    - steps: number of steps (default value 10000)
+
+    Returns:
+    - integral of the input function using numpy.trapezoid function
+
+    The plotting functionality can be incorporated just like in trapezoid_numpy()
+    or trapezoid_scipy()
+    '''
+
+    # check if the integrand is infinite at lower limit, if yes slightly increase the limit
+    try:
+        func(l_lim)
+    except ZeroDivisionError:
+        l_lim += 0.000000001
+
+    # check if the integrand is infinite at upper limit, if yes slightly decrease the limit
+    try:
+        func(u_lim)
+    except ZeroDivisionError:
+        u_lim -= 0.000000001
+
+    x = np.linspace(l_lim, u_lim, steps+1)  # create a linear grid between upper and lower limit
+
+    for i, xi in enumerate((x)):
+        # check if the integrand is infinite at any x, if yes slightly change the x value
+        try:
+            func(xi)
+        except ZeroDivisionError:
+            x[i] += 0.000000001
+
+    y = func(x) # evaluate the function on the modified grid
+    h = (u_lim - l_lim)/steps   # step size
+    # calculate the integral using the trapezoidal algorithm
+    integral_value = (h/2)*(y[0] + y[-1] + 2 * np.sum(y[1:-1]))
+    return integral_value
+
 def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     """
     Wrapper for the secant method using scipy.optimize.root_scalar.
@@ -297,7 +385,6 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     x0 : The first initial guess (Ideally close to, but less than, the root)
     x1 : The second initial guess (Ideally close to, but greater than, the root)
     args : Additional arguments to pass to the function. Must be a tuple
-    tol : Optional tolerance deciding when to stop function (default is 1e-6).
     maxiter : The maximum number of iterations if convergence is not met (default is 50).
 
     Returns:
@@ -324,3 +411,141 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
         "converged": res.converged,
         "iterations": res.iterations,
         "function_calls": res.function_calls}
+
+# Root Finding with Bisection Method
+def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
+    """
+    Wrapper for SciPy's `bisect` function.
+
+    Parameters:
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Defaults to 1000.
+
+    Returns:
+        Root: The approximate root of the function.
+
+    Raises:
+        ValueError: If func(a) and func(b) do not have opposite signs or if
+                    the function encounters undefined values (singularities).
+    """
+    small_value_threshold = 1e-3  # Threshold for detecting singularities in sin(x)
+
+    try:
+        # Check if sin(a) or sin(b) are very small (near zero)
+        if abs(math.sin(a)) < small_value_threshold:
+            raise ValueError(f"Singularity detected: division by zero in function at x = {a}.")
+        if abs(math.sin(b)) < small_value_threshold:
+            raise ValueError(f"Singularity detected: division by zero in function at x = {b}.")
+
+        # Call the SciPy bisect method if no errors were raised
+        root = optimize.bisect(func, a, b, xtol=tol, maxiter=max_iter)
+
+    except ValueError as e:
+        raise ValueError(f"SciPy bisect failed: {e}") from e
+
+    return root
+
+def bisection_pure_python(func, a, b, tol=1e-6, max_iter=1000):
+    """
+    Pure Python implementation of the bisection method.
+    Finds the root of func within the interval [a, b].
+
+    Parameters:
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Default is 1000.
+
+    Returns:
+        Root: The approximate root of the function.
+
+    Raises:
+        ValueError: If no root is detected in the initial interval.
+        RuntimeError: If the method exceeds the maximum number of iterations.
+    """
+
+    # Check if the initial interval is valid
+    if func(a) * func(b) >= 0:
+        raise ValueError("The function must have opposite signs at a and b.")
+
+    # Check for singularity or undefined values in the function at the endpoints
+    if abs(math.sin(a)) < 1e-12 or abs(math.sin(b)) < 1e-12:  # Stricter threshold for singularity
+        raise ValueError(f"Singularity detected: sin(a) = {math.sin(a)}, sin(b) = {math.sin(b)}")
+
+    root = (a + b) / 2
+    iteration_count = 0  # Track the number of iterations
+
+    while (b - a) / 2 > tol:
+        # Check for maximum iterations
+        if iteration_count >= max_iter:
+            raise RuntimeError(f"Bisection method exceeded maximum iterations ({max_iter}).")
+
+        iteration_count += 1
+        root = (a + b) / 2
+        value_at_root = func(root)
+
+        # If the function value at root is 0, return the root as an exact solution
+        if value_at_root == 0:
+            break
+
+        # If func(root) is too large, it indicates a singularity
+        if abs(value_at_root) > 1e10:  # Set a threshold for large values
+            raise ValueError(f"Singularity detected: func(root) = {value_at_root}")
+
+        # Narrow the interval
+        if func(a) * value_at_root < 0:
+            b = root
+        else:
+            a = root
+
+    return root
+
+def secant_pure_python(func, x0, x1, args=(), maxiter=50):
+    """
+    Pure Python method for the secant method of root finding.
+
+    Parameters:
+    func : The function for which the root is to be found.
+    x0 : The first initial guess (Ideally close to, but less than, the root)
+    x1 : The second initial guess (Ideally close to, but greater than, the root)
+    args : Additional arguments to pass to the function. Must be a tuple
+    maxiter : The maximum number of iterations if convergence is not met (default is 50).
+
+    Returns:
+    A dictionary containing:
+        - 'root': The estimated root.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': Number of iterations performed.
+    """
+
+    for i in range(maxiter):
+        #Evaluate function values
+        f0 = func(x0, *args)
+        f1 = func(x1, *args)
+        #Prevent division by zero. If division by zero occurs, return this dict
+        # If no division by zero, move to next dict
+        if abs(f1 - f0) < 1e-12:
+            return {
+                "root": None,
+                "converged": False,
+                "iterations": i}
+        #Secant method formula
+        x_next = x1 - f1 * (x1 - x0) / (f1 - f0)
+        #Check convergence. If converged return this dict
+        #  Add one to iterations until iteration = maxiter
+        if abs(x_next - x1) < 1e-6:
+            return {
+                "root": x_next,
+                "converged": True,
+                "iterations": i + 1}
+        #Update guesses for next iteration
+        x0, x1 = x1, x_next
+    #If max iterations are reached without convergence return this dict
+    return {
+        "root": None,
+        "converged": False,
+        "iterations": maxiter}
