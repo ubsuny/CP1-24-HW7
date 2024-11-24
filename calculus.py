@@ -2,7 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-
+import ctypes
 import math
 import numpy as np
 from scipy import optimize
@@ -633,11 +633,13 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
 
 def ctypes_stub():
     """    
-    This method demonstrates the usage of a ctypes wrapper to interact with a C++ shared library (DLL).
+    This method demonstrates the usage of a ctypes wrapper to interact with a C++
+    shared library (DLL).
 
     The shared library (calculus.dll) currently provides two simple example functions:
     1. verify_arguments: Validates whether a given number is non-negative.
-    2. calculate_square: Computes the square of a number if it is non-negative, returning NAN for invalid input.
+    2. calculate_square: Computes the square of a number if it is non-negative, returning
+    NAN for invalid input.
     """
     # Load the DLL
     dll = ctypes.CDLL("./calculus.dll")
@@ -666,5 +668,14 @@ def ctypes_stub():
         print(f"verify_arguments(4.0): {dll.verify_arguments(4.0)}")  # True
         print(f"verify_arguments(-4.0): {dll.verify_arguments(-4.0)}")  # False
 
-    except Exception as e:
-        print(f"Error: {e}")
+    except OSError as e:
+        # Specific exception for issues loading the DLL or accessing its symbols
+        print(f"OS error: {e}")
+
+    except ValueError as e:
+        # Exception for issues with invalid inputs or conversions
+        print(f"Value error: {e}")
+
+    except TypeError as e:
+        # Exception for type mismatch errors
+        print(f"Type error: {e}")
