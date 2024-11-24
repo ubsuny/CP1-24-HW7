@@ -410,4 +410,67 @@ def test_simpson_func3():
     result, steps = calc.simpson(calc.func3, -1, 1, 1000)
     assert abs(result - 2.0) < 1e-6, f"Simpson failed for func3, got {result}"
     assert steps == 1000, f"Expected 1000 steps, but got {steps}"
+def test_wrapper_simpson():
+    """
+    Unit test for the wrapper_simpson function.
+    """
+    result = calc.wrapper_simpson(np.sin, 0, np.pi, 1000)
+    assert np.isclose(result, 2), f"Expected 2, but got {result}"
 
+def test_adaptive_trap_py_exp():
+    """
+    Unit test for adaptive trapezoidal rule for exp(-1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func1, 0.01, 10, tol=1e-6)
+    expected = 7.22545022194032
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_adaptive_trap_py_cos():
+    """
+    Unit test for adaptive trapezoidal rule for cos(1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func2, 0.01, 3 * np.pi, tol=1e-6)
+    expected = 7.9151669636874225
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_trapezoid_pure_python():
+    """
+    Unit test for pure Python trapezoidal implementation.
+    """
+    result = calc.trapezoid(lambda x: x**2, 0, 1, 100)
+    expected = 1 / 3
+    assert np.isclose(result, expected, atol=1e-4), f"Expected {expected}, got {result}"
+
+def test_bisection_pure_python():
+    """
+    Unit test for pure Python implementation of the bisection method.
+    """
+    result = calc.bisection_pure_python(lambda x: x**2 - 4, 0, 3, tol=1e-6)
+    expected = 2.0
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_bisection_wrapper():
+    """
+    Unit test for the bisection wrapper using SciPy.
+    """
+    result = calc.bisection_wrapper(lambda x: x**2 - 4, 0, 3, tol=1e-6)
+    expected = 2.0
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_secant_method():
+    """
+    Unit test for the secant method (pure Python).
+    """
+    result = calc.secant_pure_python(lambda x: x**2 - 4, 1, 3, maxiter=50)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
+
+def test_secant_wrapper_method():
+    """
+    Unit test for the secant wrapper using SciPy.
+    """
+    result = calc.secant_wrapper(lambda x: x**2 - 4, 1, 3)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
