@@ -649,7 +649,7 @@ def calculate_integrals():
         "Simpson's Rule": lambda f, a, b: simpson(f, a, b, 1000)[0],
         "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
         "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
-            f, a, b, tol=1e-6
+            f, a, b, tol=1e-6, remaining_depth=10
         ),
     }
 
