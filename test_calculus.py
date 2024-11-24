@@ -277,3 +277,16 @@ def test_trapezoid_python():
     '''
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
+
+def test_evaluate_integrals():
+    """
+    Unit test for evaluate_integrals function.
+
+    This test will verify that evaluate_integrals() runs successfully without raising exceptions.
+    Since the function prints results, we are testing for execution without runtime errors.
+    """
+    try:
+        calc.evaluate_integrals()  # Running the function to ensure no exceptions are thrown
+        assert True  # Pass the test if no exceptions occur
+    except Exception as e:
+        pytest.fail(f"evaluate_integrals() raised an exception: {e}")
