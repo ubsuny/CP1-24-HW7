@@ -297,7 +297,6 @@ def test_library_loaded():
     """
     assert calculus is not None, "Failed to load the shared library."
 
-
 def test_verify_arguments():
     """
     Test the verify_arguments function.
@@ -309,7 +308,6 @@ def test_verify_arguments():
 
     # Test an invalid, negative input
     assert not calculus.verify_arguments(-5.0), "verify_arguments(-5.0) should return False."
-
 
 def test_calculate_square():
     """
