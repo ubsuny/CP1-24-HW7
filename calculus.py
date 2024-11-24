@@ -469,10 +469,10 @@ def calculate_integrals():
 
     # Algorithms to use
     algorithms = {
-        "Simpson's Rule": lambda f, a, b: simpson(f, a, b, 1000)[0],
-        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
-        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(f, a, b, tol=1e-6)
-    }
+    "Simpson's Rule": lambda f, a, b: simpson(f, a, b, 1000)[0],  # Fix: Access only the integral value
+    "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
+    "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(f, a, b, tol=1e-6)
+}
 
     # Iterate over each function and apply all algorithms
     for func, name, a, b in functions:
