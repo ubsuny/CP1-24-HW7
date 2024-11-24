@@ -91,6 +91,59 @@ def root_tangent(function, fprime, x0):
     """
     return optimize.newton(function, x0, fprime)
 
+def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
+    """
+    Pure Python implementation of the Newton-Raphson (tangent) method
+    for root finding.
+
+    Parameters:
+    func : function
+        The function for which the root is to be found.
+    fprime : function
+        The derivative of the function.
+    x0 : float
+        Initial guess for the root.
+    tol : float, optional
+        The convergence tolerance (default is 1e-6).
+    maxiter : int, optional
+        The maximum number of iterations (default is 50).
+
+    Returns:
+    dict
+        A dictionary containing:
+        - 'root': The estimated root if convergence is achieved.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': The number of iterations performed.
+    """
+    for i in range(maxiter):
+        # Evaluate function and its derivative at the current guess
+        f_val = func(x0)
+        fprime_val = fprime(x0)
+        # Handle division by zero
+        if abs(fprime_val) < 1e-12:
+            return {
+                "root": None,
+                "converged": False,
+                "iterations": i,
+                "message": "Derivative too close to zero, division by zero encountered."
+            }
+        # Update the guess using the Newton-Raphson formula
+        x_next = x0 - f_val / fprime_val
+        # Check for convergence
+        if abs(x_next - x0) < tol:
+            return {
+                "root": x_next,
+                "converged": True,
+                "iterations": i + 1
+            }
+        # Update the current guess
+        x0 = x_next
+    # If max iterations are reached without convergence
+    return {
+        "root": None,
+        "converged": False,
+        "iterations": maxiter,
+        "message": "Maximum iterations reached without convergence."}
 
 def a_trap(y, d):
     """
