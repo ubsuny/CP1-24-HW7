@@ -662,7 +662,6 @@ def evaluate_integrals():
     # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
-        
         # Dictionary to store results and metadata
         results = {}
 
