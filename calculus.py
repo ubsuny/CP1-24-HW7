@@ -630,3 +630,84 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
+
+import time
+def evaluate_integrals():
+    """
+    Evaluate integrals of the three given functions using various integration methods.
+    Compare accuracies and efficiencies for each method.
+
+    Functions:
+        func1: exp(-1/x)
+        func2: cos(1/x)
+        func3: x^3 + 1
+
+    Methods:
+        Adaptive Trapezoidal, Numpy Trapezoidal, Scipy Trapezoidal
+
+    This function prints the results for each function and compares the accuracy and efficiency
+    of the different methods.
+    """
+    functions = {
+        "exp(-1/x)": (func1, 0.000001, 10),  # Avoiding singularity at x=0
+        "cos(1/x)": (func2, 0.000001, 3 * np.pi),  # Avoiding singularity at x=0
+        "x^3+1": (func3, -1, 1)
+    }
+
+    tol = 1e-6
+    max_depth = 10
+    steps = 10000  # Number of steps for non-adaptive methods
+
+    # Loop through each function and calculate the integral using different methods
+    for name, (func, lower, upper) in functions.items():
+        print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
+        
+        # Dictionary to store results and metadata
+        results = {}
+
+        # Adaptive Trapezoidal Method
+        start_time = time.time()
+        adapt_result = adaptive_trap_py(func, lower, upper, tol, remaining_depth=max_depth)
+        end_time = time.time()
+        results["Adaptive Trapezoidal"] = {
+            "result": adapt_result,
+            "time": end_time - start_time
+        }
+
+        # Numpy Trapezoidal Method
+        start_time = time.time()
+        numpy_result = trapezoid_numpy(func, lower, upper, steps)
+        end_time = time.time()
+        results["Numpy Trapezoidal"] = {
+            "result": numpy_result,
+            "time": end_time - start_time
+        }
+
+        # Scipy Trapezoidal Method
+        start_time = time.time()
+        scipy_result = trapezoid_scipy(func, lower, upper, steps)
+        end_time = time.time()
+        results["Scipy Trapezoidal"] = {
+            "result": scipy_result,
+            "time": end_time - start_time
+        }
+
+        # Assume the result from Scipy as the benchmark for accuracy comparison
+        true_value = scipy_result
+
+        # Compare and print results
+        for method, data in results.items():
+            approx_value = data["result"]
+            time_taken = data["time"]
+
+            # Calculate the error and number of correct digits
+            error = abs(true_value - approx_value)
+            correct_digits = -np.log10(error) if error > 0 else "All"
+            correct_digits = int(correct_digits) if isinstance(correct_digits, float) else correct_digits
+
+            # Print the results for each method
+            print(f"\nMethod: {method}")
+            print(f"Result: {approx_value:.6f}")
+            print(f"Time Taken: {time_taken:.6f} seconds")
+            print(f"Error: {error:.6e}")
+            print(f"Correct Digits: {correct_digits}")
