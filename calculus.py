@@ -646,7 +646,7 @@ def calculate_integrals():
 
     # Algorithms to use
     algorithms = {
-        "Simpson's Rule": lambda f, a, b: simpson(f, a, b, 1000)[0],
+        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
         "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
         "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
             f, a, b, tol=1e-6, remaining_depth=10
@@ -667,5 +667,7 @@ def calculate_integrals():
             except OverflowError as e:
                 print(f"{algo_name}: Overflow error - {e}")
         print("\n")
+
+
 if __name__ == "__main__":
     calculate_integrals()
