@@ -111,6 +111,116 @@ def test_root_tangent(initial_guess_1):
     compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
     assert np.isclose(compare, 0.0, atol = 1.0e-6)
 
+def test_convergence_tangent():
+    """
+    Test the tangent_pure_python function for convergence to a positive root.
+
+    This test validates that the function successfully converges to the 
+    positive root (x=2) of the quadratic equation x^2 - 4, starting with an
+    initial guess near the root (x0=3).
+    """
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=3)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-6) == 2
+
+def test_negative_root_tangent():
+    """
+    Test the tangent_pure_python function for convergence to a negative root.
+
+    This test validates that the function successfully converges to the 
+    negative root (x=-2) of the quadratic equation x^2 - 4, starting with an
+    initial guess near the root (x0=-3).
+    """
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=-3)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-6) == -2
+
+def test_non_convergence_tangent():
+    """
+    Test the tangent_pure_python function for non-convergence behavior.
+
+    This test ensures that the function correctly identifies when it fails to
+    converge within the specified maximum number of iterations (maxiter=5). 
+    The initial guess is far from the root.
+    """
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=1000, maxiter=5)
+    assert result['converged'] is False
+    assert result['iterations'] == 5
+
+def test_zero_div_tangent():
+    """
+    Test the tangent_pure_python function for division by zero handling.
+
+    This test ensures that the function handles cases where the derivative
+    is zero, returning an appropriate error message and no root.
+    """
+    def func(x):
+        return x**3 - 6*x**2 + 11*x - 6  # Roots at x=1, 2, and 3
+
+    def fprime(x):
+        return 0*x  # Derivative is zero (forces division by zero)
+
+    result = calc.tangent_pure_python(func, fprime, x0=1)
+    assert result['converged'] is False
+    assert result['root'] is None
+    assert 'message' in result
+    assert result['message'] == "Derivative too close to zero, division by zero encountered."
+
+def test_tolerance_control_tangent():
+    """
+    Test the tangent_pure_python function with a tighter tolerance.
+
+    This test validates that the function respects the specified tighter
+    tolerance (1e-10) while successfully converging to the positive root (x=2).
+    """
+    def func(x):
+        return x**2 - 4  # Roots at x=2 and x=-2
+
+    def fprime(x):
+        return 2*x
+
+    result = calc.tangent_pure_python(func, fprime, x0=3, tol=1e-10)
+    assert result['converged'] is True
+    assert pytest.approx(result['root'], abs=1e-10) == 2
+
+def test_zero_root_tangent():
+    """
+    Test the tangent_pure_python function for a root close to zero.
+
+    This test ensures that the function converges to the root (x=0) of the 
+    cubic function x^3, starting from an initial guess near zero (x0=0.1).
+    The maximum number of iterations is increased to account for slower 
+    convergence near the root.
+    """
+    def func(x):
+        return x**3
+
+    def fprime(x):
+        return 3*x**2
+
+    # Increase maxiter to ensure convergence for higher multiplicity roots
+    result = calc.tangent_pure_python(func, fprime, x0=0.1, maxiter=100)
+    assert result['converged'] is True, "Method did not converge"
+    assert pytest.approx(result['root'], abs=1e-5) == 0, f"Expected 0, but got {result['root']}"
+
 def test_trapezoid_numpy():
     '''
     Unit test for numpy implementation of trapezoid method
