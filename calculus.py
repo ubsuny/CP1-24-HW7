@@ -656,9 +656,7 @@ def evaluate_integrals():
     }
 
     # Define common parameters in a combined way to reduce local variables
-    tol = 1e-6
-    max_depth = 10
-    steps = 10000  # Number of steps for non-adaptive methods
+    tol, max_depth, steps = 1e-6, 10, 10000
     
     # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
