@@ -655,14 +655,11 @@ def evaluate_integrals():
         "x^3+1": (func3, -1, 1)
     }
 
-   # Define common parameters in a combined way to reduce local variables
-    params = {
-        "tol": 1e-6,
-        "max_depth": 10,
-        "steps": 10000,  # Number of steps for non-adaptive methods
-        "n_points": 100  # Number of points for Simpson's rule
-    }
-
+    # Define common parameters in a combined way to reduce local variables
+    tol = 1e-6
+    max_depth = 10
+    steps = 10000  # Number of steps for non-adaptive methods
+    
     # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
