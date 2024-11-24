@@ -175,8 +175,8 @@ def test_zero_div_tangent():
     def func(x):
         return x**3 - 6*x**2 + 11*x - 6  # Roots at x=1, 2, and 3
 
-    def fprime():
-        return 0  # Derivative is zero (forces division by zero)
+    def fprime(x):
+        return 0*x  # Derivative is zero (forces division by zero)
 
     result = calc.tangent_pure_python(func, fprime, x0=1)
     assert result['converged'] is False
