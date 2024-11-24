@@ -288,5 +288,5 @@ def test_evaluate_integrals():
     try:
         calc.evaluate_integrals()  # Running the function to ensure no exceptions are thrown
         assert True  # Pass the test if no exceptions occur
-    except Exception as e:
+    except ( ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
         pytest.fail(f"evaluate_integrals() raised an exception: {e}")
