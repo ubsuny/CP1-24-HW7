@@ -655,12 +655,9 @@ def evaluate_integrals():
         "x^3+1": (func3, -1, 1)
     }
 
-    # Common integration parameters
-    integration_params = {
-        "tol": 1e-6,
-        "max_depth": 10,
-        "steps": 10000  # Number of steps for non adaptive methods
-    }
+    tol = 1e-6
+    max_depth = 10
+    steps = 10000  # Number of steps for non adaptive methods
 
     # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
