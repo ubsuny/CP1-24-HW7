@@ -474,15 +474,19 @@ def calculate_integrals():
         "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(f, a, b, tol=1e-6)
     }
 
-    # Iterate over each function
+    # Iterate over each function and apply all algorithms
     for func, name, a, b in functions:
         print(f"Function: {name} on [{a}, {b}]")
         for algo_name, algo in algorithms.items():
             try:
                 result = algo(func, a, b)
                 print(f"{algo_name}: {result:.6f}")
-            except Exception as e:
-                print(f"{algo_name}: Error - {e}")
+            except ZeroDivisionError as e:
+                print(f"{algo_name}: Division by zero error - {e}")
+            except ValueError as e:
+                print(f"{algo_name}: Invalid value error - {e}")
+            except OverflowError as e:
+                print(f"{algo_name}: Overflow error - {e}")
         print("\n")
 if __name__ == "__main__":
     calculate_integrals()
