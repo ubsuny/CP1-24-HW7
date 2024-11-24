@@ -322,3 +322,4 @@ def test_calculate_square():
     # Test an invalid input (negative number)
     result = calculus.calculate_square(-4.0)
     assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
+    
