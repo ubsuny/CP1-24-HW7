@@ -655,44 +655,58 @@ def evaluate_integrals():
         "x^3+1": (func3, -1, 1)
     }
 
-    # Define common parameters in a combined way to reduce local variables
-    tol, max_depth, steps = 1e-6, 10, 10000
-    
-    # Loop through each function and calculate the integral using different methods
+    integration_params = {
+        "tol": 1e-6,
+        "max_depth": 10,
+        "steps": 10000,
+    }
+
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
-        # Dictionary to store results and metadata
-        results = {}
 
-        # Adaptive Trapezoidal Method
-        start_time = time.time()
-        adapt_result = adaptive_trap_py(func, lower, upper, tol, remaining_depth=max_depth)
-        end_time = time.time()
-        results["Adaptive Trapezoidal"] = {
-            "result": adapt_result,
-            "time": end_time - start_time
-        }
+        results = {}  # Store the results and metadata
 
-        # Numpy Trapezoidal Method
-        start_time = time.time()
-        numpy_result = trapezoid_numpy(func, lower, upper, steps)
-        end_time = time.time()
-        results["Numpy Trapezoidal"] = {
-            "result": numpy_result,
-            "time": end_time - start_time
-        }
+        # Define a reusable method for measuring performance and storing results
+        def measure_performance(method_name, method_function, *args):
+            start_time = time.time()
+            result = method_function(*args)
+            elapsed_time = time.time() - start_time
+            results[method_name] = {
+                "result": result,
+                "time": elapsed_time
+            }
 
-        # Scipy Trapezoidal Method
-        start_time = time.time()
-        scipy_result = trapezoid_scipy(func, lower, upper, steps)
-        end_time = time.time()
-        results["Scipy Trapezoidal"] = {
-            "result": scipy_result,
-            "time": end_time - start_time
-        }
+        # Evaluate using various methods
+        measure_performance(
+            "Adaptive Trapezoidal",
+            adaptive_trap_py,
+            func,
+            lower,
+            upper,
+            integration_params["tol"],
+            integration_params["max_depth"],
+        )
+
+        measure_performance(
+            "Numpy Trapezoidal",
+            trapezoid_numpy,
+            func,
+            lower,
+            upper,
+            integration_params["steps"],
+        )
+
+        measure_performance(
+            "Scipy Trapezoidal",
+            trapezoid_scipy,
+            func,
+            lower,
+            upper,
+            integration_params["steps"],
+        )
 
         # Assume the result from Scipy as the benchmark for accuracy comparison
-        true_value = scipy_result
+        true_value = results["Scipy Trapezoidal"]["result"]
 
         # Compare and print results
         for method, data in results.items():
@@ -701,12 +715,8 @@ def evaluate_integrals():
 
             # Calculate the error and number of correct digits
             error = abs(true_value - approx_value)
-            correct_digits = (
-            -np.log10(error) if error > 0 else "All"
-            )
-            correct_digits = (
-                int(correct_digits) if isinstance(correct_digits, float) else correct_digits
-            )
+            correct_digits = -np.log10(error) if error > 0 else "All"
+            correct_digits = int(correct_digits) if isinstance(correct_digits, float) else correct_digits
 
             # Print the results for each method
             print(f"\nMethod: {method}")
