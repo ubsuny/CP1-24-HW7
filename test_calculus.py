@@ -6,6 +6,18 @@ import math
 import pytest
 import numpy as np
 import calculus as calc
+
+# Ctypes initialization routine
+# Load the shared library
+lib_path = os.path.abspath("calculus.dll")
+calculus = ctypes.CDLL(lib_path)
+# Define argument and return types
+calculus.verify_arguments.argtypes = [ctypes.c_double]
+calculus.verify_arguments.restype = ctypes.c_bool
+
+calculus.calculate_square.argtypes = [ctypes.c_double]
+calculus.calculate_square.restype = ctypes.c_double
+
 # Define the function to integrate outside the test function
 
 def test_wrapper_simpson():
@@ -277,3 +289,41 @@ def test_trapezoid_python():
     '''
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
+
+class test_cpp_module(unittest.TestCase):
+    """
+    Unit test class for testing functions in the calculus.dll shared library.
+    """
+
+    def test_library_loaded(self):
+        """
+        Test to ensure the shared library is loaded successfully.
+        """
+        # Check if ctypes successfully loaded the shared library
+        self.assertIsNotNone(calculus)
+
+    def test_verify_arguments(self):
+        """
+        Test the verify_arguments function.
+
+        This function should return True for non-negative inputs and False for negative inputs.
+        """
+        # Test a valid, non-negative input
+        self.assertTrue(calculus.verify_arguments(10.0))  # Expected: True
+
+        # Test an invalid, negative input
+        self.assertFalse(calculus.verify_arguments(-5.0))  # Expected: False
+
+    def test_calculate_square(self):
+        """
+        Test the calculate_square function.
+
+        This function should compute the square of a valid input and return NAN for invalid inputs.
+        """
+        # Test a valid input
+        result = calculus.calculate_square(4.0)
+        self.assertEqual(result, 16.0)  # Expected: 16.0 (4^2)
+
+        # Test an invalid input (negative number)
+        result = calculus.calculate_square(-4.0)
+        self.assertTrue(math.isnan(result))  # Expected: True (NAN for invalid input)
