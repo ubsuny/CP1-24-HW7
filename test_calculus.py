@@ -2,19 +2,52 @@
 Unit testing module for testing functions in calculus.py
 """
 
+import math
 import pytest
 import numpy as np
 import calculus as calc
+# Define the function to integrate outside the test function
 
-def test_simpson():
+def test_wrapper_simpson():
     """
-    Unit test simpson method
+    test the scipy implementation for simpson method
     """
-    # Call the simpson function and unpack the result
-    result, updated_n = calc.simpson(np.sin, 0, np.pi, 100)
+    assert np.isclose(calc.wrapper_simpson(np.sin, 0, np.pi), 2)
 
-    # Use an assertion to check if the result is close to the expected value
-    assert np.isclose(result, 2), f"Expected 2, but got {result}. Updated n: {updated_n}"
+def test_constant_function():
+    """Integral of f(x) = 1 from 0 to 1 is 1"""
+    result = calc.simpsons_rule(lambda x: 1, 0, 1, 10)
+    assert math.isclose(result, 1, rel_tol=1e-5)
+
+
+def test_linear_function():
+    """Integral of f(x) = x from 0 to 1 is 0.5"""
+    result = calc.simpsons_rule(lambda x: x, 0, 1, 10)
+    assert math.isclose(result, 0.5, rel_tol=1e-5)
+
+
+def test_quadratic_function():
+    """Integral of f(x) = x^2 from 0 to 1 is 1/3"""
+    result = calc.simpsons_rule(lambda x: x**2, 0, 1, 10)
+    assert math.isclose(result, 1 / 3, rel_tol=1e-5)
+
+
+def test_sine_function():
+    """Integral of f(x) = sin(x) from 0 to pi is 2"""
+    result = calc.simpsons_rule(math.sin, 0, math.pi, 100)
+    assert math.isclose(result, 2, rel_tol=1e-5)
+
+
+def test_invalid_subintervals():
+    """Testing invalid subintervals"""
+    with pytest.raises(ValueError):
+        calc.simpsons_rule(lambda x: x, 0, 1, 3)
+
+
+def test_negative_subintervals():
+    """Testing negative subintervals"""
+    with pytest.raises(ValueError):
+        calc.simpsons_rule(lambda x: x, 0, 1, -2)
 
 def func_1(x):
     """
@@ -90,6 +123,94 @@ def test_trapezoid_scipy():
     Unit test for scipy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
+
+
+def d3(x):
+    """Derivative of x^3 + 1."""
+    return 3 * x**2
+
+def d1(x):
+    """Derivative of exp(-1/x)."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return np.exp(-1 / x) / x**2
+
+def d2(x):
+    """Derivative of cos(1/x)."""
+    with np.errstate(divide='ignore', invalid='ignore'):
+        return np.sin(1 / x) / x**2
+
+@pytest.mark.parametrize("func, bounds, d, sens, expected", [
+    ("x^3+1", [0, 1], 100, 1, 1.25),  # Integral of x^3 + 1 from 0 to 1
+    ("exp(-1/x)", [1, 2], 100, 1, 0.5047),  # Approximation
+    ("cos(1/x)", [0.1, 0.2], 100, 1, 0.0322),  # Approximation
+])
+def test_adapt(func, bounds, d, sens, expected):
+    """
+    Unit test for adaptive integration function
+
+    Parameters:
+    func (str): the function to integrate
+    bounds (list): integration bounds [lower, upper]
+    d (int): number of points
+    sens (float): sensitivity of the adaptation
+    """
+    result = calc.adapt(func, bounds, d, sens)
+    assert np.isclose(result, expected, atol=1e-2)
+
+# Test data for various cases
+test_data_tanh = [
+    (math.tanh, -1, 1, 1e-6, 0.0)  # (function, a, b, tol, expected_root)
+]
+
+test_data_1_over_sin = [
+    (lambda x: 1 / math.sin(x) if math.sin(x) != 0 else float('inf'), 3, 4, 1e-6, math.pi)
+]
+
+invalid_interval_data = [
+    (math.tanh, -1, -0.5, 1e-6)  # (function, a, b, tol)
+]
+
+# Test data: singularities near sin(x) = 0
+singularity_data = [
+    (lambda x: 1 / math.sin(x) if math.sin(x) != 0 else float('inf'),
+     3.141592653589793 - 1e-3, 3.141592653589793 + 1e-3, 1e-6),  # near singularity
+    (lambda x: 1 / math.sin(x), 3.1405926535897932, 3.142592653589793,
+     1e-6), # Check behavior near zero
+]
+
+# SciPy Wrapper Tests
+@pytest.mark.parametrize("func, a, b, tol, expected", test_data_tanh + test_data_1_over_sin)
+def test_bisection_wrapper(func, a, b, tol, expected):
+    """Test SciPy wrapper implementation."""
+    root = calc.bisection_wrapper(func, a, b, tol)
+    assert math.isclose(root, expected, rel_tol=1e-6), f"Expected {expected}, got {root}"
+
+# Pure Python Implementation Tests
+@pytest.mark.parametrize("func, a, b, tol, expected", test_data_tanh + test_data_1_over_sin)
+def test_bisection_pure_python(func, a, b, tol, expected):
+    """Test pure Python implementation."""
+    root = calc.bisection_pure_python(func, a, b, tol)
+    assert math.isclose(root, expected, rel_tol=1e-6), f"Expected {expected}, got {root}"
+
+# Invalid Interval Tests
+@pytest.mark.parametrize("func, a, b, tol", invalid_interval_data)
+def test_invalid_interval_for_bisection(func, a, b, tol):
+    """Test for invalid intervals where func(a) and func(b) do not have opposite signs."""
+    with pytest.raises(ValueError):
+        calc.bisection_wrapper(func, a, b, tol)
+
+    with pytest.raises(ValueError):
+        calc.bisection_pure_python(func, a, b, tol)
+
+# Singularity Tests
+@pytest.mark.parametrize("func, a, b, tol", singularity_data)
+def test_singularities_for_bisection(func, a, b, tol):
+    """Test handling of singularities for 1/sin(x)."""
+    with pytest.raises(ValueError):
+        calc.bisection_wrapper(func, a, b, tol)
+
+    with pytest.raises(ValueError):
+        calc.bisection_pure_python(func, a, b, tol)
 
 @pytest.mark.parametrize("f, a, b, n, expected", [
     (lambda x: x**2, 0, 1, 100, 1/3),
