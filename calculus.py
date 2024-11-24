@@ -4,6 +4,7 @@ This module implements different integration and root finding algorithms
 """
 
 import math
+import time
 import numpy as np
 from scipy import optimize
 import scipy as sp
@@ -631,7 +632,7 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "converged": False,
         "iterations": maxiter}
 
-import time
+
 def evaluate_integrals():
     """
     Evaluate integrals of the three given functions using various integration methods.
@@ -702,8 +703,12 @@ def evaluate_integrals():
 
             # Calculate the error and number of correct digits
             error = abs(true_value - approx_value)
-            correct_digits = -np.log10(error) if error > 0 else "All"
-            correct_digits = int(correct_digits) if isinstance(correct_digits, float) else correct_digits
+            correct_digits = (
+            -np.log10(error) if error > 0 else "All"
+            )
+            correct_digits = (
+                int(correct_digits) if isinstance(correct_digits, float) else correct_digits
+            )
 
             # Print the results for each method
             print(f"\nMethod: {method}")
