@@ -2,7 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-
+import ctypes
 import math
 import numpy as np
 from scipy import optimize
@@ -630,3 +630,94 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
+
+def ctypes_stub():
+    """    
+    This method demonstrates the usage of a ctypes wrapper to interact with a C++
+    shared library (DLL).
+
+    The shared library (calculus.dll) currently provides two simple example functions:
+    1. verify_arguments: Validates whether a given number is non-negative.
+    2. calculate_square: Computes the square of a number if it is non-negative, returning
+    NAN for invalid input.
+    """
+    # Load the DLL
+    dll = ctypes.CDLL("./calculus.dll")
+
+    # Define function signatures
+    dll.verify_arguments.argtypes = [ctypes.c_double]
+    dll.verify_arguments.restype = ctypes.c_bool
+
+    dll.calculate_square.argtypes = [ctypes.c_double]
+    dll.calculate_square.restype = ctypes.c_double
+
+    # Test the functions
+    try:
+        # Test valid input
+        result = dll.calculate_square(4.0)
+        print(f"Square of 4.0: {result}")  # Should print 16.0
+
+        # Test invalid input
+        result = dll.calculate_square(-4.0)
+        if math.isnan(result):
+            print("Square of -4.0: Invalid input (returned NAN)")
+        else:
+            print(f"Square of -4.0: {result}")
+
+        # Verify arguments
+        print(f"verify_arguments(4.0): {dll.verify_arguments(4.0)}")  # True
+        print(f"verify_arguments(-4.0): {dll.verify_arguments(-4.0)}")  # False
+
+    except OSError as e:
+        # Specific exception for issues loading the DLL or accessing its symbols
+        print(f"OS error: {e}")
+
+    except ValueError as e:
+        # Exception for issues with invalid inputs or conversions
+        print(f"Value error: {e}")
+
+    except TypeError as e:
+        # Exception for type mismatch errors
+        print(f"Type error: {e}")
+
+def calculate_integrals():
+    """
+    Calculate integrals of the three given functions using all available algorithms.
+    Print the results for each function and algorithm.
+    """
+    print("Calculating integrals for all functions using all algorithms...\n")
+
+    # List of functions and their integration intervals
+    functions = [
+        (func1, "exp(-1/x)", 0.01, 10),
+        (func2, "cos(1/x)", 0.01, 3 * np.pi),
+        (func3, "x³ + 1", -1, 1)
+    ]
+
+    # Algorithms to use
+    algorithms = {
+        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
+        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
+        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
+            f, a, b, tol=1e-6, remaining_depth=10
+        ),
+    }
+
+    # Iterate over each function and apply all algorithms
+    for func, name, a, b in functions:
+        print(f"Function: {name} on [{a}, {b}]")
+        for algo_name, algo in algorithms.items():
+            try:
+                result = algo(func, a, b)
+                print(f"{algo_name}: {result:.6f}")
+            except ZeroDivisionError as e:
+                print(f"{algo_name}: Division by zero error - {e}")
+            except ValueError as e:
+                print(f"{algo_name}: Invalid value error - {e}")
+            except OverflowError as e:
+                print(f"{algo_name}: Overflow error - {e}")
+        print("\n")
+
+
+if __name__ == "__main__":
+    calculate_integrals()
