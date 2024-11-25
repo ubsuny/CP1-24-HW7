@@ -10,8 +10,10 @@ import calculus as calc
 # Ctypes initialization routine
 # Load the shared library
 lib_path = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
+new_lib_path=os.path.abspath("./calc.dll")
 try:
     calculus = ctypes.CDLL(lib_path)
+    new_calc=ctypes.CDLL(new_lib_path)
 except OSError as e:
     raise RuntimeError(f"Failed to load shared library: {e}") from e
 
@@ -26,9 +28,10 @@ CallbackFunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 calculus.invoke_with_floats.argtypes = [CallbackFunction, ctypes.c_double, ctypes.c_double]
 calculus.invoke_with_floats.restype = ctypes.c_double
 
-calculus.adapt_c.argtypes=[ctypes.CFUNCTYPE(ctypes.c_double,ctypes.c_double)
+new_calc.adapt_c.argtypes=[ctypes.CFUNCTYPE(ctypes.c_double,ctypes.c_double)
 , ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int]
-calculus.adapt_c.restype=ctypes.c_double
+new_calc.adapt_c.restype=ctypes.c_double
+
 def cubic(x):
     """
     the cubic function
@@ -57,11 +60,11 @@ def test_adapt_c():
     produces the expected results for certain 
     integrals.
     """
-    result1=calculus.adapt_c(python_cubic_c, -1,1,10,10)
+    result1=new_calc.adapt_c(python_cubic_c, -1,1,10,10)
     assert np.isclose(result1, 2, .1)
-    result2=calculus.adapt_c(python_cos_c, .01,3*np.pi, 20,100)
+    result2=new_calc.adapt_c(python_cos_c, .01,3*np.pi, 20,100)
     assert np.isclose(result2, 7.9, .1)
-    result3=calculus.adapt_c(python_exp_c, .01, 10, 100, 1000)
+    result3=new_calc.adapt_c(python_exp_c, .01, 10, 100, 1000)
     assert np.isclose(result3, 7.2, .1)
 # Define the function to integrate outside the test function
 def test_wrapper_simpson():
