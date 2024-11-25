@@ -5,7 +5,8 @@ functions, including various edge cases and error handling scenarios.
 
 import math
 import pytest
-from findroots import func_1_safe, func_2, func_3, calculate_accuracy, apply_methods, plot_function_with_roots, find_roots
+from findroots import (func_1_safe, func_2, func_3, calculate_accuracy,
+                       apply_methods, plot_function_with_roots, find_roots)
 
 # Test for func_1_safe
 def test_func_1_safe():
