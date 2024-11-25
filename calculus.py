@@ -2,7 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-
+import ctypes
 import math
 import numpy as np
 from scipy import optimize
@@ -630,6 +630,56 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
+
+def ctypes_stub():
+    """    
+    This method demonstrates the usage of a ctypes wrapper to interact with a C++
+    shared library (DLL).
+
+    The shared library (calculus.dll) currently provides two simple example functions:
+    1. verify_arguments: Validates whether a given number is non-negative.
+    2. calculate_square: Computes the square of a number if it is non-negative, returning
+    NAN for invalid input.
+    """
+    # Load the DLL
+    dll = ctypes.CDLL("./calculus.dll")
+
+    # Define function signatures
+    dll.verify_arguments.argtypes = [ctypes.c_double]
+    dll.verify_arguments.restype = ctypes.c_bool
+
+    dll.calculate_square.argtypes = [ctypes.c_double]
+    dll.calculate_square.restype = ctypes.c_double
+
+    # Test the functions
+    try:
+        # Test valid input
+        result = dll.calculate_square(4.0)
+        print(f"Square of 4.0: {result}")  # Should print 16.0
+
+        # Test invalid input
+        result = dll.calculate_square(-4.0)
+        if math.isnan(result):
+            print("Square of -4.0: Invalid input (returned NAN)")
+        else:
+            print(f"Square of -4.0: {result}")
+
+        # Verify arguments
+        print(f"verify_arguments(4.0): {dll.verify_arguments(4.0)}")  # True
+        print(f"verify_arguments(-4.0): {dll.verify_arguments(-4.0)}")  # False
+
+    except OSError as e:
+        # Specific exception for issues loading the DLL or accessing its symbols
+        print(f"OS error: {e}")
+
+    except ValueError as e:
+        # Exception for issues with invalid inputs or conversions
+        print(f"Value error: {e}")
+
+    except TypeError as e:
+        # Exception for type mismatch errors
+        print(f"Type error: {e}")
+
 def calculate_integrals():
     """
     Calculate integrals of the three given functions using all available algorithms.
