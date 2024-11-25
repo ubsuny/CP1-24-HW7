@@ -1,6 +1,8 @@
 """
 Root-Finding Module for Mathematical Functions
-This module implements methods for root-finding from calculus.py, including the secant and bisection methods, using both SciPy and pure Python implementations. It also provides utilities for function visualization and accuracy analysis of root-finding methods.
+This module implements methods for root-finding from calculus.py, including the secant and bisection methods,
+using both SciPy and pure Python implementations. It also provides utilities for function visualization and
+accuracy analysis of root-finding methods.
 Functions:
     - func_1_safe: Defines the function y(x) = 1/sin(x) with singularities handled.
     - func_2: Defines the function y(x) = tanh(x).
