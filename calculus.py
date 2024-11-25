@@ -662,9 +662,9 @@ def evaluate_integrals():
     }
 
     for name, (func, lower, upper) in functions.items():
-        print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
-
         results = {}  # Store the results and metadata
+
+        print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
 
         # Define a reusable method for measuring performance and storing results
         def measure_performance(method_name, method_function, *args):
@@ -716,7 +716,8 @@ def evaluate_integrals():
             # Calculate the error and number of correct digits
             error = abs(true_value - approx_value)
             correct_digits = -np.log10(error) if error > 0 else "All"
-            correct_digits = int(correct_digits) if isinstance(correct_digits, float) else correct_digits
+            if isinstance(correct_digits, float):
+                correct_digits = int(correct_digits) 
 
             # Print the results for each method
             print(f"\nMethod: {method}")
