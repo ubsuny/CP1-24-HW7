@@ -638,7 +638,6 @@ def test_secant_root_trigonometric():
     assert not math.isnan(root), "Unexpected NaN result."
     assert math.isclose(root, math.pi, rel_tol=1e-6), f"Expected root {math.pi}, got {root}"
 
-<<<<<<< main
 def test_evaluate_integrals():
     """
     Unit test for evaluate_integrals function.
