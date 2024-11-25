@@ -721,4 +721,3 @@ def calculate_integrals():
 
 if __name__ == "__main__":
     calculate_integrals()
-    
