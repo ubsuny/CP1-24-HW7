@@ -72,7 +72,7 @@ def func_1(x):
     Outputs:
     (number): the value of the function
     """
-    return x ** 2
+    return x ** 3 - 4 * x + 1
 
 def func_1_prime(x):
     """
@@ -84,7 +84,7 @@ def func_1_prime(x):
     Outputs:
     (number): the value of the derivative of func_1
     """
-    return 2 * x
+    return 3 * x**2 - 4
 
 def exp_minus_one_by_x(x):
     '''
@@ -122,7 +122,7 @@ def test_root_tangent(initial_guess_1):
     x_0 (number): the initial guess for the root
     """
     compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
-    assert np.isclose(compare, 0.0, atol = 1.0e-6)
+    assert np.isclose(compare, 0.2541016883651, atol = 1.0e-6)
 
 def test_convergence_tangent():
     """
