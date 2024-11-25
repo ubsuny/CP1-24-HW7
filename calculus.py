@@ -642,7 +642,8 @@ def ctypes_stub():
     NAN for invalid input.
     """
     # Load the DLL
-    dll = ctypes.CDLL("./calculus.dll")
+    dll = ctypes.CDLL("./lib_calculus.so")
+
 
     # Define function signatures
     dll.verify_arguments.argtypes = [ctypes.c_double]
@@ -679,6 +680,70 @@ def ctypes_stub():
     except TypeError as e:
         # Exception for type mismatch errors
         print(f"Type error: {e}")
+
+def ctypes_invoke_with_floats(callback, a, b):
+    """
+    Calls the C++ function invoke_with_floats, passing a Python callback function
+    and two float arguments.
+
+    Parameters:
+        callback (function): A Python function that takes one float argument and returns a float.
+        a (float): The first float input.
+        b (float): The second float input.
+
+    Returns:
+        float: The result of the callback applied to (a + b).
+    """
+    # Load the DLL
+    lib_path = "./lib_calculus.so"  # Ensure the correct library file name and path
+    calculus = ctypes.CDLL(lib_path)
+    # Define ctypes function signature if not already defined
+    callback_function = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+    calculus.invoke_with_floats.argtypes = [callback_function, ctypes.c_double, ctypes.c_double]
+    calculus.invoke_with_floats.restype = ctypes.c_double
+
+    # Wrap the Python callback with ctypes
+    wrapped_callback = callback_function(callback)
+    return calculus.invoke_with_floats(wrapped_callback, a, b)
+
+def secant_root(callback, x0, x1, tol, max_iter):
+    """
+    Finds the root of a function using the secant method.
+
+    Parameters:
+        callback (function): A Python function representing the equation f(x).
+        x0 (float): The first initial guess for the root.
+        x1 (float): The second initial guess for the root.
+        tol (float): The tolerance for convergence.
+        max_iter (int): The maximum number of iterations allowed.
+
+    Returns:
+        float: The approximate root if convergence is achieved; otherwise, NAN.
+    """
+    # Load the shared library
+    lib_path = "./lib_calculus.so"  # Ensure the correct library file name and path
+    calculus = ctypes.CDLL(lib_path)
+
+    # Define the ctypes callback function type
+    callback_function = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+
+    # Define the argument and return types for the secant_root function
+    calculus.secant_root.argtypes = [
+        callback_function,
+        ctypes.c_double,
+        ctypes.c_double,
+        ctypes.c_double,
+        ctypes.c_int,
+    ]
+    calculus.secant_root.restype = ctypes.c_double
+
+    # Wrap the Python callback function
+    wrapped_callback = callback_function(callback)
+
+    # Invoke the C++ function and return the result
+    return calculus.secant_root(wrapped_callback, x0, x1, tol, max_iter)
+
+
 
 def calculate_integrals():
     """

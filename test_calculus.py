@@ -10,14 +10,23 @@ import calculus as calc
 
 # Ctypes initialization routine
 # Load the shared library
-lib_path = os.path.abspath("calculus.dll")
-calculus = ctypes.CDLL(lib_path)
+lib_path = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
+try:
+    calculus = ctypes.CDLL(lib_path)
+except OSError as e:
+    raise RuntimeError(f"Failed to load shared library: {e}") from e
+
 # Define argument and return types for the DLL functions
 calculus.verify_arguments.argtypes = [ctypes.c_double]
 calculus.verify_arguments.restype = ctypes.c_bool
 
 calculus.calculate_square.argtypes = [ctypes.c_double]
 calculus.calculate_square.restype = ctypes.c_double
+
+# Define ctypes function signature for `invoke_with_floats`
+CallbackFunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+calculus.invoke_with_floats.argtypes = [CallbackFunction, ctypes.c_double, ctypes.c_double]
+calculus.invoke_with_floats.restype = ctypes.c_double
 
 # Define the function to integrate outside the test function
 
@@ -393,6 +402,49 @@ def test_secant_wrapper_doesnt_converge():
     assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
                                args=(1,0,1), maxiter = 50)['converged'] is False
 
+
+def test_adaptive_trap_py_exp():
+    """
+    Unit test for adaptive trapezoidal rule for exp(-1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func1, 0.01, 10, tol=1e-6)
+    expected = 7.22545022194032
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_adaptive_trap_py_cos():
+    """
+    Unit test for adaptive trapezoidal rule for cos(1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func2, 0.01, 3 * np.pi, tol=1e-6)
+    expected = 7.908470226410015
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_trapezoid_pure_python():
+    """
+    Unit test for pure Python trapezoidal implementation.
+    """
+    result = calc.trapezoid(lambda x: x**2, 0, 1, 100)
+    expected = 1 / 3
+    assert np.isclose(result, expected, atol=1e-4), f"Expected {expected}, got {result}"
+
+
+def test_secant_method():
+    """
+    Unit test for the secant method (pure Python).
+    """
+    result = calc.secant_pure_python(lambda x: x**2 - 4, 1, 3, maxiter=50)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
+
+def test_secant_wrapper_method():
+    """
+    Unit test for the secant wrapper using SciPy.
+    """
+    result = calc.secant_wrapper(lambda x: x**2 - 4, 1, 3)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
 # ctypes and c++ unit tests
 def test_trapezoid_python():
     '''
@@ -432,3 +484,154 @@ def test_calculate_square():
     # Test an invalid input (negative number)
     result = calculus.calculate_square(-4.0)
     assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
+
+def test_ctypes_invoke_with_floats():
+    """
+    Test invoking a Python math function with two floats through a C++ callback.
+    """
+
+    # Define a simple Python math function
+    def square(x):
+        return x * x
+
+    # Wrap the Python callback using ctypes
+    wrapped_callback = CallbackFunction(square)
+
+    # Test with two positive floats
+    result = calculus.invoke_with_floats(wrapped_callback, 2.0, 3.0)
+    assert math.isclose(result, 25.0, rel_tol=1e-5), f"Expected 25.0, got {result}"
+
+    # Test with a positive and a negative float
+    result = calculus.invoke_with_floats(wrapped_callback, -3.0, 3.0)
+    assert math.isclose(result, 0.0, rel_tol=1e-5), f"Expected 0.0, got {result}"
+
+    # Test with two negative floats
+    result = calculus.invoke_with_floats(wrapped_callback, -2.0, -3.0)
+    assert math.isclose(result, 25.0, rel_tol=1e-5), f"Expected 25.0, got {result}"
+
+def test_secant_root_positive_root():
+    """
+    Test secant_root to find the positive root of the equation x^2 - 4 = 0.
+    """
+    # Define the function to find the root for
+    def func(x):
+        return x**2 - 4
+
+    # Initial guesses near the positive root (x = 2)
+    x0, x1 = 3.0, 2.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Assert the result is close to the expected root
+    assert math.isclose(root, 2.0, rel_tol=1e-6), f"Expected root 2.0, got {root}"
+
+
+def test_secant_root_negative_root():
+    """
+    Test secant_root to find the negative root of the equation x^2 - 4 = 0.
+    """
+    # Define the function to find the root for
+    def func(x):
+        return x**2 - 4
+
+    # Initial guesses near the negative root (x = -2)
+    x0, x1 = -3.0, -2.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Assert the result is close to the expected root
+    assert math.isclose(root, -2.0, rel_tol=1e-6), f"Expected root -2.0, got {root}"
+
+
+def test_secant_root_no_convergence():
+    """
+    Test secant_root for a case where the method does not converge.
+    """
+    # Define a function that does not have a root in the given range
+    def func(x):
+        return x**2 + 4  # No real roots
+
+    # Initial guesses
+    x0, x1 = 1.0, 2.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=10)
+
+    # Assert that the root is NaN due to non-convergence
+    assert math.isnan(root), f"Expected NaN for no convergence, got {root}"
+
+def test_secant_root_converges_to_zero():
+    """
+    Test secant_root for convergence to zero.
+    """
+    def func(x):
+        return x**3  # Flat region near x = 0
+
+    # Initial guesses
+    x0, x1 = 0.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Debugging output
+    print(f"Result for secant_root_converges_to_zero: {root}")
+
+    # Assert that the root is approximately 0.0
+    assert math.isclose(root, 0.0, abs_tol=1e-6), f"Expected root at 0.0, got {root}"
+
+def test_secant_root_division_by_zero():
+    """
+    Test secant_root for a case where division by zero occurs.
+    """
+    def func(x=0):
+        print(f"{x} passed in to test_secant_root_division_by_zero()")
+        return 1.0  # Constant function, derivative is zero everywhere
+
+    # Initial guesses where function values are the same
+    x0, x1 = 0.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Debugging output
+    print(f"Result for secant_root_division_by_zero: {root}")
+
+    # Assert that the root is NaN due to division by zero
+    assert math.isnan(root), f"Expected NaN due to division by zero, got {root}"
+
+def test_secant_root_cubic():
+    """
+    Test secant_root for a cubic function.
+    """
+    def func(x):
+        return x**3 - 1
+
+    x0, x1 = 0.5, 1.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+    print(f"Cubic Test: x0={x0}, x1={x1}, root={root}")
+
+    assert not math.isnan(root), "Unexpected NaN result."
+    assert math.isclose(root, 1.0, rel_tol=1e-6), f"Expected root 1.0, got {root}"
+
+
+def test_secant_root_exponential():
+    """
+    Test secant_root for an exponential function.
+    """
+    def func(x):
+        return math.exp(x) - 1
+
+    # Initial guesses
+    x0, x1 = -1.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Assert the result is close to 0
+    assert math.isclose(root, 0.0, rel_tol=1e-6), f"Expected root 0.0, got {root}"
+
+
+
+def test_secant_root_trigonometric():
+    """
+    Test secant_root for a trigonometric function.
+    """
+    def func(x):
+        return math.sin(x)
+
+    x0, x1 = 3.0, 4.0  # Root at pi
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+    print(f"Trigonometric Test: x0={x0}, x1={x1}, root={root}")
+
+    assert not math.isnan(root), "Unexpected NaN result."
+    assert math.isclose(root, math.pi, rel_tol=1e-6), f"Expected root {math.pi}, got {root}"
