@@ -484,7 +484,7 @@ def test_edge_cases():
     Assertions:
         - Verifies that the calculated results are close to expected values for each edge case.
     """
-    
+
     # Define edge cases for each function with respective bounds
     edge_cases = [
         {
@@ -524,7 +524,7 @@ def test_edge_cases():
             pytest.fail(
                 f"Edge case integration raised an unexpected exception: {e}"
             )
-        
+     
 @patch('calculus.adaptive_trap_py', return_value=0.1485)
 @patch('calculus.trapezoid_numpy', return_value=0.1484)
 @patch('calculus.trapezoid_scipy', return_value=0.1484)
