@@ -789,7 +789,7 @@ if __name__ == "__main__":
     calculate_integrals()
 
 # Define the functions
-# --------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 def func_1_safe(x):
     """
     y(x) = 1/sin(x) with singularities handled.
@@ -813,7 +813,7 @@ def func_3(x):
     return math.sin(x)
 
 # Calculate the accuracy of roots
-# --------------------------------------------------------------------------------
+# ---------------------------------------------------------------------------------
 def calculate_accuracy(approx, true_root):
     """
     Calculate the number of correct decimal digits in the approximation of the root.
@@ -921,3 +921,4 @@ def find_roots():
 
 if __name__ == "__main__":
     find_roots()
+
