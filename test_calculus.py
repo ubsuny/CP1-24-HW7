@@ -790,10 +790,10 @@ def test_apply_methods():
     """Test the apply_methods function."""
     try:
         calc.apply_methods(
-            calc.func_2, 
-            (-1, 1), 
+            calc.func_2,
+            (-1, 1),
             "y(x) = tanh(x)", 
-            true_root=0.0, 
+            true_root=0.0,
             filename="test_plot.png"
         )
     except ValueError as e:
@@ -812,9 +812,9 @@ def test_plot_function_with_roots():
     """Test the plot_function_with_roots function."""
     try:
         calc.plot_function_with_roots(
-            calc.func_3, 
-            (0, math.pi), 
-            [math.pi], 
+            calc.func_3,
+            (0, math.pi),
+            [math.pi],
             "test_plot.png", 
             "y(x) = sin(x)"
         )
