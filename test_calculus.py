@@ -436,7 +436,6 @@ def test_secant_wrapper_method():
     expected = 2.0
     assert np.isclose(result["root"], expected, atol=1e-6), \
         f"Expected {expected}, got {result['root']}"
-=======
 # ctypes and c++ unit tests
 def test_trapezoid_python():
     '''
