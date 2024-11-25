@@ -10,9 +10,9 @@ import calculus as calc
 
 # Ctypes initialization routine
 # Load the shared library
-lib_path = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
+LIB_PATH = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
 try:
-    calculus = ctypes.CDLL(lib_path)
+    calculus = ctypes.CDLL(LIB_PATH)
 except OSError as e:
     raise RuntimeError(f"Failed to load shared library: {e}") from e
 
@@ -27,6 +27,11 @@ calculus.calculate_square.restype = ctypes.c_double
 CallbackFunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 calculus.invoke_with_floats.argtypes = [CallbackFunction, ctypes.c_double, ctypes.c_double]
 calculus.invoke_with_floats.restype = ctypes.c_double
+
+CallbackFunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+calculus.trapezoidal_rule.argtypes =[
+    CallbackFunction, ctypes.c_double, ctypes.c_double, ctypes.c_int]
+calculus.trapezoidal_rule.restype = ctypes.c_double
 
 # Define the function to integrate outside the test function
 
@@ -635,3 +640,56 @@ def test_secant_root_trigonometric():
 
     assert not math.isnan(root), "Unexpected NaN result."
     assert math.isclose(root, math.pi, rel_tol=1e-6), f"Expected root {math.pi}, got {root}"
+
+def test_trapezoidal_rule_constant():
+    """Test trapezoidal rule with a constant function."""
+    result = calc.trapezoidal_rule(lambda x: 1, 0, 1, 100)
+    assert math.isclose(result, 1, rel_tol=1e-6), f"Expected 1, got {result}"
+
+def test_trapezoidal_rule_linear():
+    """Test trapezoidal rule with a linear function."""
+    result = calc.trapezoidal_rule(lambda x: x, 0, 1, 100)
+    assert math.isclose(result, 0.5, rel_tol=1e-6), f"Expected 0.5, got {result}"
+
+def test_trapezoidal_rule_quadratic():
+    """Test trapezoidal rule with a quadratic function."""
+    result = calc.trapezoidal_rule(lambda x: x**2, 0.0, 1.0, 1000)
+    print(result)
+    assert math.isclose(result, 1/3, rel_tol=1e-6), f"Expected 1/3, got {result}"
+
+def test_trapezoidal_rule_sine():
+    """Test trapezoidal rule with the sine function."""
+    result = calc.trapezoidal_rule(math.sin, 0.0, math.pi, 1000)
+    print(result)
+    assert math.isclose(result, 2.0, rel_tol=1e-6), f"Expected 2, got {result}"
+
+def test_trapezoidal_rule_invalid_n():
+    """Test trapezoidal rule with an invalid number of subdivisions."""
+    result = calc.trapezoidal_rule(lambda x: x, 0, 1, 0)
+    assert math.isnan(result), f"Expected NAN for invalid n, got {result}"
+
+def test_trapezoidal_rule_infinity():
+    """
+    Test trapezoidal rule with a function returning infinity.
+    Should skip the infinity, and still get a result.
+    """
+    def func(x=0):
+        if x != 0:
+            return 1
+        return 1/(x**100)
+    result = calc.trapezoidal_rule(func, -1, 1, 10000)
+    assert math.isclose(result, 2, rel_tol=1e-6), f"Expected 2, got {result}"
+
+
+def test_trapezoidal_rule_endpoint_infinity():
+    """
+    Test trapezoidal rule with infinity at an endpoint.
+    Should skip the endpoint, and still get a result.
+    Had to lower accuracy as endpoint were being skipped.
+    """
+    def func(x=0):
+        if x != 0:
+            return 1
+        return 1/(x)**100
+    result = calc.trapezoidal_rule(func, 0, 2, 1000)
+    assert math.isclose(result, 2, rel_tol=1e-3), f"Expected 2, got {result}"
