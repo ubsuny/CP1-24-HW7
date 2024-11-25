@@ -85,7 +85,7 @@ def apply_methods(func, interval, description, true_root=None, filename=None):
             accuracy = calculate_accuracy(root, true_root)
             if isinstance(result, dict):  # Check if method returns a dict
                 print(
-                    f"{method['name']} root: {root} | Converged: {result.get('converged', 'N/A')} | "
+                    f"{method['name']} root: {root} | Converged: {result.get('converged', 'N/A')} |"
                     f"Accuracy: {accuracy} digits"
                 )
             else:
