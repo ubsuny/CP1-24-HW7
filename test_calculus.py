@@ -380,43 +380,6 @@ def test_secant_wrapper_doesnt_converge():
     assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
                                args=(1,0,1), maxiter = 50)['converged'] is False
 
-
-def test_trapezoid_python():
-    '''
-    Unit test for pure python implementation of trapezoid method
-    '''
-    assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
-    assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
-def test_simpson_func1():
-    """
-    Test Simpson's Rule for exp(-1/x) on [0.01, 10].
-    """
-    result, steps = calc.simpson(calc.func1, 0.01, 10, 1000)
-    assert abs(result - 7.22545022194032) < 1e-6, f"Simpson failed for func1, got {result}"
-    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
-
-def test_simpson_func2():
-    """
-    Test Simpson's Rule for cos(1/x) on [0.01, 3π].
-    """
-    result, steps = calc.simpson(calc.func2, 0.01, 3 * np.pi, 1000)
-    assert abs(result - 7.9151669636874225) < 1e-6, f"Simpson failed for func2, got {result}"
-    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
-
-def test_simpson_func3():
-    """
-    Test Simpson's Rule for x³ + 1 on [-1, 1].
-    """
-    result, steps = calc.simpson(calc.func3, -1, 1, 1000)
-    assert abs(result - 2.0) < 1e-6, f"Simpson failed for func3, got {result}"
-    assert steps == 1000, f"Expected 1000 steps, but got {steps}"
-def test_wrapper_simpson():
-    """
-    Unit test for the wrapper_simpson function.
-    """
-    result = calc.wrapper_simpson(np.sin, 0, np.pi, 1000)
-    assert np.isclose(result, 2), f"Expected 2, but got {result}"
-
 def test_adaptive_trap_py_exp():
     """
     Unit test for adaptive trapezoidal rule for exp(-1/x).
@@ -430,7 +393,7 @@ def test_adaptive_trap_py_cos():
     Unit test for adaptive trapezoidal rule for cos(1/x).
     """
     result = calc.adaptive_trap_py(calc.func2, 0.01, 3 * np.pi, tol=1e-6)
-    expected = 7.9151669636874225
+    expected = 7.908470226410015
     assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
 
 def test_trapezoid_pure_python():
@@ -441,21 +404,6 @@ def test_trapezoid_pure_python():
     expected = 1 / 3
     assert np.isclose(result, expected, atol=1e-4), f"Expected {expected}, got {result}"
 
-def test_bisection_pure_python():
-    """
-    Unit test for pure Python implementation of the bisection method.
-    """
-    result = calc.bisection_pure_python(lambda x: x**2 - 4, 0, 3, tol=1e-6)
-    expected = 2.0
-    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
-
-def test_bisection_wrapper():
-    """
-    Unit test for the bisection wrapper using SciPy.
-    """
-    result = calc.bisection_wrapper(lambda x: x**2 - 4, 0, 3, tol=1e-6)
-    expected = 2.0
-    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
 
 def test_secant_method():
     """

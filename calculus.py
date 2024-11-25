@@ -632,21 +632,42 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "iterations": maxiter}
 def calculate_integrals():
     """
-    Calculate integrals of the three given functions using Simpson's Rule.
-    Print the results for each function.
+    Calculate integrals of the three given functions using all available algorithms.
+    Print the results for each function and algorithm.
     """
-    print("Calculating integrals using Simpson's Rule...\n")
+    print("Calculating integrals for all functions using all algorithms...\n")
 
-    # exp(-1/x) on [0.01, 10]
-    print("Function: exp(-1/x) on [0.01, 10]")
-    print(f"Simpson's Rule: {simpson(func1, 0.01, 10, 1000)}\n")
+    # List of functions and their integration intervals
+    functions = [
+        (func1, "exp(-1/x)", 0.01, 10),
+        (func2, "cos(1/x)", 0.01, 3 * np.pi),
+        (func3, "x³ + 1", -1, 1)
+    ]
 
-    # cos(1/x) on [0.01, 3π]
-    print("Function: cos(1/x) on [0.01, 3π]")
-    print(f"Simpson's Rule: {simpson(func2, 0.01, 3 * np.pi, 1000)}\n")
+    # Algorithms to use
+    algorithms = {
+        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
+        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
+        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
+            f, a, b, tol=1e-6, remaining_depth=10
+        ),
+    }
 
-    # x³ + 1 on [-1, 1]
-    print("Function: x³ + 1 on [-1, 1]")
-    print(f"Simpson's Rule: {simpson(func3, -1, 1, 1000)}")
+    # Iterate over each function and apply all algorithms
+    for func, name, a, b in functions:
+        print(f"Function: {name} on [{a}, {b}]")
+        for algo_name, algo in algorithms.items():
+            try:
+                result = algo(func, a, b)
+                print(f"{algo_name}: {result:.6f}")
+            except ZeroDivisionError as e:
+                print(f"{algo_name}: Division by zero error - {e}")
+            except ValueError as e:
+                print(f"{algo_name}: Invalid value error - {e}")
+            except OverflowError as e:
+                print(f"{algo_name}: Overflow error - {e}")
+        print("\n")
+
+
 if __name__ == "__main__":
     calculate_integrals()
