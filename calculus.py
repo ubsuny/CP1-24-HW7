@@ -4,11 +4,11 @@ This module implements different integration and root finding algorithms
 """
 import ctypes
 import math
+import time
 import numpy as np
 from scipy import optimize
 import scipy as sp
 from scipy.integrate import simpson
-import time
 
 # General function to integrate
 def wrapper_simpson(f, a, b, n=100):
