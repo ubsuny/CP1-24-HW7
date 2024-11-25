@@ -446,8 +446,8 @@ def test_evaluate_integrals():
     """
     # Expected values for each function over their respective ranges
     expected_results = {
-        "exp(-1/x)": 0.1485,  # Approximation for [0.000001, 10]
-        "cos(1/x)": 0.1838,   # Approximation for [0.000001, 3π]
+        "exp(-1/x)": 7.22545,  # Approximation for [0.000001, 10]
+        "cos(1/x)": 7.91109,   # Approximation for [0.000001, 3π]
         "x^3+1": 2.0          # Analytic value for [-1, 1]
     }
 
@@ -489,13 +489,13 @@ def test_edge_cases():
             "func": calc.func1,
             "lower": 1e-10,
             "upper": 10,
-            "expected": 0.1485
+            "expected": 7.22545
         },
         {
             "func": calc.func2,
             "lower": 1e-10,
             "upper": 3 * np.pi,
-            "expected": 0.1838
+            "expected": 7.91109
         },
         {
             "func": calc.func3,
@@ -521,9 +521,9 @@ def test_edge_cases():
         except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
             pytest.fail(f"Edge case integration raised an unexpected exception: {e}")
 
-@patch('calculus.adaptive_trap_py', return_value=0.1485)
-@patch('calculus.trapezoid_numpy', return_value=0.1484)
-@patch('calculus.trapezoid_scipy', return_value=0.1484)
+@patch('calculus.adaptive_trap_py', return_value=7.22545)
+@patch('calculus.trapezoid_numpy', return_value=7.22545)
+@patch('calculus.trapezoid_scipy', return_value=7.22545)
 def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     """
     Unit test for individual integration methods using mocking.
@@ -545,6 +545,6 @@ def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     assert mock_scipy.called, "Scipy Trapezoidal method was not called."
 
     # Verify that each mocked method returned the correct value
-    assert np.isclose(mock_adapt.return_value, 0.1485, atol=1e-2)
-    assert np.isclose(mock_numpy.return_value, 0.1484, atol=1e-2)
-    assert np.isclose(mock_scipy.return_value, 0.1484, atol=1e-2)
+    assert np.isclose(mock_adapt.return_value, 7.22545, atol=1e-2)
+    assert np.isclose(mock_numpy.return_value, 7.22545, atol=1e-2)
+    assert np.isclose(mock_scipy.return_value, 7.22545, atol=1e-2)
