@@ -5,6 +5,7 @@ This module implements different integration and root finding algorithms
 import ctypes
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy import optimize
 import scipy as sp
 from scipy.integrate import simpson
