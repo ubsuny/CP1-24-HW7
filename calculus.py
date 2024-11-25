@@ -744,6 +744,39 @@ def secant_root(callback, x0, x1, tol, max_iter):
     return calculus.secant_root(wrapped_callback, x0, x1, tol, max_iter)
 
 
+def trapezoidal_rule(callback, a, b, n):
+    """
+    Wrapper for the C++ trapezoidal_rule function.
+
+    Parameters:
+        callback (function): A Python function representing the integrand.
+        a (float): Lower limit of integration.
+        b (float): Upper limit of integration.
+        n (int): Number of subdivisions.
+
+    Returns:
+        float: The computed integral or raises an exception on failure.
+    """
+    # Load the shared library
+    lib_path = "./lib_calculus.so"  # Update path if needed
+    calculus = ctypes.CDLL(lib_path)
+
+    # Define ctypes callback function type
+    callbackfunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+
+    # Define the argument and return types for trapezoidal_rule
+    calculus.trapezoidal_rule.argtypes = [
+        callbackfunction, ctypes.c_double, ctypes.c_double, ctypes.c_int]
+    calculus.trapezoidal_rule.restype = ctypes.c_double
+
+    # Wrap the Python callback function
+    wrapped_callback = callbackfunction(callback)
+
+    # Call the C++ function
+    result = calculus.trapezoidal_rule(wrapped_callback, a, b, n)
+    return result
+
+
 
 def calculate_integrals():
     """
