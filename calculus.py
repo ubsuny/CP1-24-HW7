@@ -789,8 +789,7 @@ if __name__ == "__main__":
     calculate_integrals()
 
 """
-Root-Finding Module for Mathematical Functions
-This module implements methods for root-finding from calculus.py, including the secant and
+Implements methods for root-finding from calculus.py, including the secant and
 bisection methods, using both SciPy and pure Python implementations. It also provides
 utilities for function visualization and accuracy analysis of root-finding methods.
 Functions:
