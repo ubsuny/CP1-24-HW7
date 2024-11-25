@@ -661,6 +661,16 @@ def evaluate_integrals():
         "steps": 10000,
     }
 
+    # Define a reusable method for measuring performance and storing results
+    def measure_performance(current_results, method_name, method_function, *args):
+        start_time = time.time()
+        result = method_function(*args)
+        elapsed_time = time.time() - start_time
+        current_results[method_name] = {
+            "result": result,
+            "time": elapsed_time
+        }
+
     # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
@@ -668,18 +678,9 @@ def evaluate_integrals():
         # Create a new dictionary to store results in each loop iteration
         current_results = {}
 
-        # Define a reusable method for measuring performance and storing results
-        def measure_performance(method_name, method_function, *args):
-            start_time = time.time()
-            result = method_function(*args)
-            elapsed_time = time.time() - start_time
-            current_results[method_name] = {
-                "result": result,
-                "time": elapsed_time
-            }
-
         # Evaluate using various methods
         measure_performance(
+            current_results,
             "Adaptive Trapezoidal",
             adaptive_trap_py,
             func,
@@ -690,6 +691,7 @@ def evaluate_integrals():
         )
 
         measure_performance(
+            current_results,
             "Numpy Trapezoidal",
             trapezoid_numpy,
             func,
@@ -699,6 +701,7 @@ def evaluate_integrals():
         )
 
         measure_performance(
+            current_results,
             "Scipy Trapezoidal",
             trapezoid_scipy,
             func,
@@ -717,7 +720,8 @@ def evaluate_integrals():
 
             # Calculate the error and number of correct digits
             error = abs(true_value - approx_value)
-            correct_digits = -np.log10(error) if error > 0 else "All"
+            correct_digits = -np.log10(error) if error > 0 else None
+
             if isinstance(correct_digits, float):
                 correct_digits = int(correct_digits)
                 
@@ -726,4 +730,7 @@ def evaluate_integrals():
             print(f"Result: {approx_value:.6f}")
             print(f"Time Taken: {time_taken:.6f} seconds")
             print(f"Error: {error:.6e}")
-            print(f"Correct Digits: {correct_digits}")
+            
+            # Only print correct digits if available
+            if correct_digits is not None:
+                print(f"Correct Digits: {correct_digits}")
