@@ -9,7 +9,7 @@
  *
  * Usage:
  * Compile this file into a shared library for Python:
- * g++ -shared -o calculus.dll -fPIC calculus.cpp
+ * g++ -shared -o lib_calculus.so -fPIC lib_calculus.cpp
  */
 
 #include <cmath>         // For NAN (Not-a-Number) representation
