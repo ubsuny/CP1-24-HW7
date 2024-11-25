@@ -703,7 +703,34 @@ def calculate_integrals():
         "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
             f, a, b, tol=1e-6, remaining_depth=10
         ),
+    }
+    
+def evaluate_integrals():
+    """
+    Evaluate integrals of the three given functions using various integration methods.
+    Compare accuracies and efficiencies for each method.
 
+    Functions:
+        func1: exp(-1/x)
+        func2: cos(1/x)
+        func3: x^3 + 1
+
+    Methods:
+        Adaptive Trapezoidal, Numpy Trapezoidal, Scipy Trapezoidal
+
+    This function prints the results for each function and compares the accuracy and efficiency
+    of the different methods.
+    """
+    functions = {
+        "exp(-1/x)": (func1, 0.000001, 10),  # Avoiding singularity at x=0
+        "cos(1/x)": (func2, 0.000001, 3 * np.pi),  # Avoiding singularity at x=0
+        "x^3+1": (func3, -1, 1)
+    }
+
+    integration_params = {
+        "tol": 1e-6,
+        "max_depth": 10,
+        "steps": 10000,
     }
 
     # Define a reusable method for measuring performance and storing results
