@@ -788,20 +788,6 @@ def calculate_integrals():
 if __name__ == "__main__":
     calculate_integrals()
 
-"""
-Implements methods for root-finding from calculus.py, including the secant and
-bisection methods, using both SciPy and pure Python implementations. It also provides
-utilities for function visualization and accuracy analysis of root-finding methods.
-Functions:
-    - func_1_safe: Defines the function y(x) = 1/sin(x) with singularities handled.
-    - func_2: Defines the function y(x) = tanh(x).
-    - func_3: Defines the function y(x) = sin(x).
-    - calculate_accuracy: Computes the number of correct decimal digits in a root approximation.
-    - apply_methods: Applies root-finding methods to a function over a specified interval.
-    - plot_function_with_roots: Plots the function over an interval and marks the found roots.
-    - find_roots: Main function to test root-finding on predefined functions and intervals.
-"""
-
 # Define the functions
 # --------------------------------------------------------------------------------
 def func_1_safe(x):
