@@ -11,14 +11,23 @@ import calculus as calc
 
 # Ctypes initialization routine
 # Load the shared library
-lib_path = os.path.abspath("calculus.dll")
-calculus = ctypes.CDLL(lib_path)
+lib_path = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
+try:
+    calculus = ctypes.CDLL(lib_path)
+except OSError as e:
+    raise RuntimeError(f"Failed to load shared library: {e}") from e
+
 # Define argument and return types for the DLL functions
 calculus.verify_arguments.argtypes = [ctypes.c_double]
 calculus.verify_arguments.restype = ctypes.c_bool
 
 calculus.calculate_square.argtypes = [ctypes.c_double]
 calculus.calculate_square.restype = ctypes.c_double
+
+# Define ctypes function signature for `invoke_with_floats`
+CallbackFunction = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+calculus.invoke_with_floats.argtypes = [CallbackFunction, ctypes.c_double, ctypes.c_double]
+calculus.invoke_with_floats.restype = ctypes.c_double
 
 # Define the function to integrate outside the test function
 
@@ -434,122 +443,154 @@ def test_calculate_square():
     result = calculus.calculate_square(-4.0)
     assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
 
-def test_evaluate_integrals():
+
+def test_ctypes_invoke_with_floats():
     """
-    Unit test for evaluate_integrals function.
-
-    This test will verify that evaluate_integrals() runs successfully without raising exceptions
-    and checks the correctness of the integration values.
-
-    Assertions:
-        - Verifies that the computed integral is close to the expected value for each function.
+    Test invoking a Python math function with two floats through a C++ callback.
     """
-    # Expected values for each function over their respective ranges
-    expected_results = {
-        "exp(-1/x)": 7.22545,  # Approximation for [0.000001, 10]
-        "cos(1/x)": 7.91109,   # Approximation for [0.000001, 3π]
-        "x^3+1": 2.0          # Analytic value for [-1, 1]
-    }
 
-    tol = 1e-2  # Allowable tolerance for accuracy check
+    # Define a simple Python math function
+    def square(x):
+        return x * x
 
-    # Mocking time.sleep to speed up the testing process if it was part of the original function
-    with patch('time.sleep', return_value=None):
-        # Run evaluate_integrals and capture the results
-        try:
-            results = calc.evaluate_integrals()
-        except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-            pytest.fail(f"evaluate_integrals() raised an unexpected exception: {e}")
+    # Wrap the Python callback using ctypes
+    wrapped_callback = CallbackFunction(square)
 
-    # Loop through expected results and verify if output is close to expected value
-    for func_name, expected in expected_results.items():
-        result = results[func_name]["Scipy Trapezoidal"]["result"]
-        assert np.isclose(result, expected, atol=tol), (
-            f"Integration result for {func_name} was {result:.6f}, "
-            f"expected approximately {expected:.6f}"
-        )
+    # Test with two positive floats
+    result = calculus.invoke_with_floats(wrapped_callback, 2.0, 3.0)
+    assert math.isclose(result, 25.0, rel_tol=1e-5), f"Expected 25.0, got {result}"
 
-def test_edge_cases():
+    # Test with a positive and a negative float
+    result = calculus.invoke_with_floats(wrapped_callback, -3.0, 3.0)
+    assert math.isclose(result, 0.0, rel_tol=1e-5), f"Expected 0.0, got {result}"
+
+    # Test with two negative floats
+    result = calculus.invoke_with_floats(wrapped_callback, -2.0, -3.0)
+    assert math.isclose(result, 25.0, rel_tol=1e-5), f"Expected 25.0, got {result}"
+
+def test_secant_root_positive_root():
     """
-    Unit test for edge cases when evaluating integrals.
-
-    This test ensures that edge cases like singularities and very large integration ranges
-    are handled appropriately by the integration functions in evaluate_integrals.
-
-    Edge Cases:
-        - Singularities at x close to zero.
-        - Very large integration ranges to check numerical stability.
-
-    Assertions:
-        - Verifies that the calculated results are close to expected values for each edge case.
+    Test secant_root to find the positive root of the equation x^2 - 4 = 0.
     """
-    # Define edge cases for each function with respective bounds
-    edge_cases = [
-        {
-            "func": calc.func1,
-            "lower": 1e-10,
-            "upper": 10,
-            "expected": 7.22545
-        },
-        {
-            "func": calc.func2,
-            "lower": 1e-10,
-            "upper": 3 * np.pi,
-            "expected": 7.91109
-        },
-        {
-            "func": calc.func3,
-            "lower": -1e6,
-            "upper": 1e6,
-            "expected": 0.0  # Assuming large cancellation results in ~0
-        }
-    ]
+    # Define the function to find the root for
+    def func(x):
+        return x**2 - 4
 
-    for case in edge_cases:
-        try:
-            result = calc.adaptive_trap_py(
-                case["func"],
-                case["lower"],
-                case["upper"],
-                tol=1e-6,
-                remaining_depth=10,
-            )
-            assert np.isclose(result, case["expected"], atol=1e-2), (
-                f"Integration result for edge case was {result:.6f}, "
-                f"expected approximately {case['expected']:.6f}"
-            )
-        except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-            pytest.fail(f"Edge case integration raised an unexpected exception: {e}")
+    # Initial guesses near the positive root (x = 2)
+    x0, x1 = 3.0, 2.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
 
-@patch('calculus.adaptive_trap_py', return_value=7.22545)
-@patch('calculus.trapezoid_numpy', return_value=7.22545)
-@patch('calculus.trapezoid_scipy', return_value=7.22545)
-def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
+    # Assert the result is close to the expected root
+    assert math.isclose(root, 2.0, rel_tol=1e-6), f"Expected root 2.0, got {root}"
+
+
+def test_secant_root_negative_root():
     """
-    Unit test for individual integration methods using mocking.
-
-    This test verifies that the integration methods (adaptive, numpy, scipy) are called
-    correctly by the evaluate_integrals function, and that they return the expected values.
-
-    Parameters:
-    - mock_adapt: Mock of adaptive_trap_py function.
-    - mock_numpy: Mock of trapezoid_numpy function.
-    - mock_scipy: Mock of trapezoid_scipy function.
+    Test secant_root to find the negative root of the equation x^2 - 4 = 0.
     """
-    # Run evaluate_integrals() and ensure all mocks are called
-    results = calc.evaluate_integrals()
+    # Define the function to find the root for
+    def func(x):
+        return x**2 - 4
 
-    # Ensure results contain expected keys
-    assert "exp(-1/x)" in results, "Results do not contain 'exp(-1/x)' function key."
-    assert "cos(1/x)" in results, "Results do not contain 'cos(1/x)' function key."
-    assert "x^3+1" in results, "Results do not contain 'x^3+1' function key."
+    # Initial guesses near the negative root (x = -2)
+    x0, x1 = -3.0, -2.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
 
-    # Assert that each mocked method was called at least once
-    assert mock_adapt.called, "Adaptive Trapezoidal method was not called."
-    assert mock_numpy.called, "Numpy Trapezoidal method was not called."
-    assert mock_scipy.called, "Scipy Trapezoidal method was not called."
+    # Assert the result is close to the expected root
+    assert math.isclose(root, -2.0, rel_tol=1e-6), f"Expected root -2.0, got {root}"
 
-    # Verify that each mocked method returned the correct value
-    assert np.isclose(mock_adapt.return_value, 7.22545, atol=1e-2)
-    assert np.isclose(mock_numpy.return_value, 7.22545, atol=1e-2)
-    assert np.isclose(mock_scipy.return_value, 7.22545, atol=1e-2)
+
+def test_secant_root_no_convergence():
+    """
+    Test secant_root for a case where the method does not converge.
+    """
+    # Define a function that does not have a root in the given range
+    def func(x):
+        return x**2 + 4  # No real roots
+
+    # Initial guesses
+    x0, x1 = 1.0, 2.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=10)
+
+    # Assert that the root is NaN due to non-convergence
+    assert math.isnan(root), f"Expected NaN for no convergence, got {root}"
+
+def test_secant_root_converges_to_zero():
+    """
+    Test secant_root for convergence to zero.
+    """
+    def func(x):
+        return x**3  # Flat region near x = 0
+
+    # Initial guesses
+    x0, x1 = 0.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Debugging output
+    print(f"Result for secant_root_converges_to_zero: {root}")
+
+    # Assert that the root is approximately 0.0
+    assert math.isclose(root, 0.0, abs_tol=1e-6), f"Expected root at 0.0, got {root}"
+
+def test_secant_root_division_by_zero():
+    """
+    Test secant_root for a case where division by zero occurs.
+    """
+    def func(x=0):
+        print(f"{x} passed in to test_secant_root_division_by_zero()")
+        return 1.0  # Constant function, derivative is zero everywhere
+
+    # Initial guesses where function values are the same
+    x0, x1 = 0.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Debugging output
+    print(f"Result for secant_root_division_by_zero: {root}")
+
+    # Assert that the root is NaN due to division by zero
+    assert math.isnan(root), f"Expected NaN due to division by zero, got {root}"
+
+def test_secant_root_cubic():
+    """
+    Test secant_root for a cubic function.
+    """
+    def func(x):
+        return x**3 - 1
+
+    x0, x1 = 0.5, 1.5
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+    print(f"Cubic Test: x0={x0}, x1={x1}, root={root}")
+
+    assert not math.isnan(root), "Unexpected NaN result."
+    assert math.isclose(root, 1.0, rel_tol=1e-6), f"Expected root 1.0, got {root}"
+
+
+def test_secant_root_exponential():
+    """
+    Test secant_root for an exponential function.
+    """
+    def func(x):
+        return math.exp(x) - 1
+
+    # Initial guesses
+    x0, x1 = -1.0, 1.0
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+
+    # Assert the result is close to 0
+    assert math.isclose(root, 0.0, rel_tol=1e-6), f"Expected root 0.0, got {root}"
+
+
+
+def test_secant_root_trigonometric():
+    """
+    Test secant_root for a trigonometric function.
+    """
+    def func(x):
+        return math.sin(x)
+
+    x0, x1 = 3.0, 4.0  # Root at pi
+    root = calc.secant_root(func, x0, x1, tol=1e-6, max_iter=50)
+    print(f"Trigonometric Test: x0={x0}, x1={x1}, root={root}")
+
+    assert not math.isnan(root), "Unexpected NaN result."
+    assert math.isclose(root, math.pi, rel_tol=1e-6), f"Expected root {math.pi}, got {root}"
