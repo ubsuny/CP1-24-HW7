@@ -715,53 +715,39 @@ def evaluate_integrals():
 
     # Dictionary to store all results
     all_results = {}
-    
-    # Define a reusable method for measuring performance and storing results
-    def measure_performance(current_results, method_name, method_function, *args):
-        start_time = time.time()
-        result = method_function(*args)
-        elapsed_time = time.time() - start_time
-        current_results[method_name] = {
-            "result": result,
-            "time": elapsed_time
-        }
 
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
-        
         current_results = {}
 
-        # Evaluate using various methods
-        measure_performance(
-            current_results,
-            "Adaptive Trapezoidal",
-            adaptive_trap_py,
-            func,
-            lower,
-            upper,
-            integration_params["tol"],
-            integration_params["max_depth"],
-        )
+        # Evaluate integrals using various methods
+        for method_name, method_function, arg in [
+            (
+                "Adaptive Trapezoidal", adaptive_trap_py,
+                (func, lower, upper, integration_params["tol"], integration_params["max_depth"])
 
-        measure_performance(
-            current_results,
-            "Numpy Trapezoidal",
-            trapezoid_numpy,
-            func,
-            lower,
-            upper,
-            integration_params["steps"],
-        )
+            ),
+            (
+                "Numpy Trapezoidal", trapezoid_numpy,
+                (func, lower, upper, integration_params["steps"])
 
-        measure_performance(
-            current_results,
-            "Scipy Trapezoidal",
-            trapezoid_scipy,
-            func,
-            lower,
-            upper,
-            integration_params["steps"],
-        )
+            ),
+            (
+                "Scipy Trapezoidal", trapezoid_scipy,
+                (func, lower, upper, integration_params["steps"])
+
+            ),
+        ]:
+            # Measure performance
+            start_time = time.time()
+            result = method_function(*args)
+            elapsed_time = time.time() - start_time
+
+            current_results[method_name] = {
+                "result": result,
+                "time": elapsed_time
+
+            }
 
         # Assume the result from Scipy as the benchmark for accuracy comparison
         true_value = current_results["Scipy Trapezoidal"]["result"]
