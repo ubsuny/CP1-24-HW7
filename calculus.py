@@ -684,74 +684,49 @@ def ctypes_stub():
 
 def evaluate_integrals():
     """
-    Evaluate integrals of the three given functions using various integration methods.
-    Compare accuracies and efficiencies for each method.
-
-    Functions:
-        func1: exp(-1/x)
-        func2: cos(1/x)
-        func3: x^3 + 1
-
-    Methods:
-        Adaptive Trapezoidal, Numpy Trapezoidal, Scipy Trapezoidal
+    Evaluate integrals of predefined functions using multiple methods and compare results.
 
     Returns:
         dict: A dictionary with the integration results for each function.
     """
-    functions = {
-        "exp(-1/x)": (func1, 0.000001, 10),
-        "cos(1/x)": (func2, 0.000001, 3 * np.pi),
-        "x^3+1": (func3, -1, 1),
-    }
-
-    integration_methods = [
-        ("Adaptive Trapezoidal", adaptive_trap_py),
-        ("Numpy Trapezoidal", trapezoid_numpy),
-        ("Scipy Trapezoidal", trapezoid_scipy),
-    ]
-
-    params = {
-        "tol": 1e-6,
-        "max_depth": 10,
-        "steps": 10000,
-    }
-
-    all_results = {}
-
-    for name, (func, lower, upper) in functions.items():
-        print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
-        current_results = {}
-
-        for method_name, method_function in integration_methods:
-            if method_name == "Adaptive Trapezoidal":
-                args = (func, lower, upper, params["tol"], params["max_depth"])
-            else:
-                args = (func, lower, upper, params["steps"])
-
-            start_time = time.time()
-            result = method_function(*args)
-            elapsed_time = time.time() - start_time
-
-            current_results[method_name] = {
-                "result": result,
-                "time": elapsed_time,
+    def integrate_and_compare(func, lower, upper):
+        """Integrate using multiple methods and compare results."""
+        methods = [
+            ("Adaptive Trapezoidal", adaptive_trap_py,
+             (func, lower, upper, 1e-6, 10)),
+            ("Numpy Trapezoidal", trapezoid_numpy,
+             (func, lower, upper, 10000)),
+            ("Scipy Trapezoidal", trapezoid_scipy,
+             (func, lower, upper, 10000)),
+        ]
+        results = {}
+        for method_name, method_function, args in methods:
+            start = time.time()
+            results[method_name] = {
+                "result": method_function(*args),
+                "time": time.time() - start,
             }
 
-        true_value = current_results["Scipy Trapezoidal"]["result"]
-
-        for method, data in current_results.items():
-            error = abs(true_value - data["result"])
+        # Use Scipy as benchmark and compare methods
+        benchmark = results["Scipy Trapezoidal"]["result"]
+        for method, data in results.items():
+            error = abs(benchmark - data["result"])
             correct_digits = -np.log10(error) if error > 0 else None
-            if correct_digits:
-                correct_digits = int(correct_digits)
+            print(
+                f"\nMethod: {method}\n"
+                f"Result: {data['result']:.6f}\n"
+                f"Time: {data['time']:.6f} seconds\n"
+                f"Error: {error:.6e}\n"
+                f"Correct Digits: {int(correct_digits) if correct_digits else 'N/A'}"
+            )
 
-            print(f"\nMethod: {method}")
-            print(f"Result: {data['result']:.6f}")
-            print(f"Time Taken: {data['time']:.6f} seconds")
-            print(f"Error: {error:.6e}")
-            if correct_digits is not None:
-                print(f"Correct Digits: {correct_digits}")
+        return results
 
-        all_results[name] = current_results
-
-    return all_results
+    return {
+        name: integrate_and_compare(func, lower, upper)
+        for name, (func, lower, upper) in {
+            "exp(-1/x)": (func1, 1e-6, 10),
+            "cos(1/x)": (func2, 1e-6, 3 * np.pi),
+            "x^3+1": (func3, -1, 1),
+        }.items()
+    }
