@@ -4,7 +4,6 @@ This module implements different integration and root finding algorithms
 """
 
 import math
-import time
 import numpy as np
 from scipy import optimize
 import scipy as sp
