@@ -667,7 +667,13 @@ def test_calculate_accuracy():
 def test_apply_methods():
     """Test the apply_methods function."""
     try:
-        calc.apply_methods(calc.func_2, (-1, 1), "y(x) = tanh(x)", true_root=0.0, filename="test_plot.png")
+        calc.apply_methods(
+            calc.func_2, 
+            (-1, 1), 
+            "y(x) = tanh(x)", 
+            true_root=0.0, 
+            filename="test_plot.png"
+        )
     except ValueError as e:
         pytest.fail(f"apply_methods failed with ValueError: {str(e)}")
     except FileNotFoundError as e:
@@ -683,7 +689,13 @@ def test_apply_methods():
 def test_plot_function_with_roots():
     """Test the plot_function_with_roots function."""
     try:
-        calc.plot_function_with_roots(calc.func_3, (0, math.pi), [math.pi], 'test_plot.png', "y(x) = sin(x)")
+        calc.plot_function_with_roots(
+            calc.func_3, 
+            (0, math.pi), 
+            [math.pi], 
+            "test_plot.png", 
+            "y(x) = sin(x)"
+        )
     except ValueError as e:
         pytest.fail(f"plot_function_with_roots failed with ValueError: {str(e)}")
     except FileNotFoundError as e:
@@ -694,6 +706,7 @@ def test_plot_function_with_roots():
         pytest.fail(f"plot_function_with_roots failed due to AssertionError: {str(e)}")
     except Exception as e:  # Catching any unexpected errors
         pytest.fail(f"plot_function_with_roots failed with an unexpected error: {str(e)}")
+
 
 # Test for find_roots
 def test_find_roots():
