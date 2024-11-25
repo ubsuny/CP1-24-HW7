@@ -1,11 +1,24 @@
 """
 Unit testing module for testing functions in calculus.py
 """
-
+import ctypes
+import os
 import math
 import pytest
 import numpy as np
 import calculus as calc
+
+# Ctypes initialization routine
+# Load the shared library
+lib_path = os.path.abspath("calculus.dll")
+calculus = ctypes.CDLL(lib_path)
+# Define argument and return types for the DLL functions
+calculus.verify_arguments.argtypes = [ctypes.c_double]
+calculus.verify_arguments.restype = ctypes.c_bool
+
+calculus.calculate_square.argtypes = [ctypes.c_double]
+calculus.calculate_square.restype = ctypes.c_double
+
 # Define the function to integrate outside the test function
 
 def test_wrapper_simpson():
@@ -380,10 +393,42 @@ def test_secant_wrapper_doesnt_converge():
     assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
                                args=(1,0,1), maxiter = 50)['converged'] is False
 
-
+# ctypes and c++ unit tests
 def test_trapezoid_python():
     '''
     Unit test for pure python implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
+
+def test_library_loaded():
+    """
+    Test to ensure the shared library is loaded successfully.
+    """
+    assert calculus is not None, "Failed to load the shared library."
+
+def test_verify_arguments():
+    """
+    Test the verify_arguments function.
+
+    This function should return True for non-negative inputs and False for negative inputs.
+    """
+    # Test a valid, non-negative input
+    assert calculus.verify_arguments(10.0), "verify_arguments(10.0) should return True."
+
+    # Test an invalid, negative input
+    assert not calculus.verify_arguments(-5.0), "verify_arguments(-5.0) should return False."
+
+def test_calculate_square():
+    """
+    Test the calculate_square function.
+
+    This function should compute the square of a valid input and return NAN for invalid inputs.
+    """
+    # Test a valid input
+    result = calculus.calculate_square(4.0)
+    assert result == 16.0, f"calculate_square(4.0) should return 16.0, got {result}."
+
+    # Test an invalid input (negative number)
+    result = calculus.calculate_square(-4.0)
+    assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
