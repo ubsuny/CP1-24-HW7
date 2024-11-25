@@ -1,12 +1,19 @@
 {
     "files.associations": {
+<<<<<<< HEAD
+=======
+        "cmath": "cpp",
+>>>>>>> 3f60e80af09a09e35b67ba2bd42f3b7eafcfd0f8
         "array": "cpp",
         "atomic": "cpp",
         "bit": "cpp",
         "*.tcc": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
+<<<<<<< HEAD
         "cmath": "cpp",
+=======
+>>>>>>> 3f60e80af09a09e35b67ba2bd42f3b7eafcfd0f8
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",
@@ -15,7 +22,10 @@
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
+<<<<<<< HEAD
         "list": "cpp",
+=======
+>>>>>>> 3f60e80af09a09e35b67ba2bd42f3b7eafcfd0f8
         "unordered_map": "cpp",
         "vector": "cpp",
         "exception": "cpp",
