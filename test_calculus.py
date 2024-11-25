@@ -460,7 +460,7 @@ def test_edge_cases():
 @patch('calculus.trapezoid_numpy', return_value=0.1484)
 @patch('calculus.trapezoid_scipy', return_value=0.1484)
 def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
-   """
+    """
     Unit test for individual integration methods using mocking.
 
     This test verifies that the integration methods (adaptive, numpy, scipy) are called
@@ -488,4 +488,3 @@ def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     assert np.isclose(mock_adapt.return_value, 0.1485, atol=1e-2)
     assert np.isclose(mock_numpy.return_value, 0.1484, atol=1e-2)
     assert np.isclose(mock_scipy.return_value, 0.1484, atol=1e-2)
-
