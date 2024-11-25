@@ -738,21 +738,21 @@ def evaluate_integrals():
 
     # Dictionary to store all results
     all_results = {}
+    
+    # Define a reusable method for measuring performance and storing results
+    def measure_performance(current_results, method_name, method_function, *args):
+        start_time = time.time()
+        result = method_function(*args)
+        elapsed_time = time.time() - start_time
+        current_results[method_name] = {
+            "result": result,
+            "time": elapsed_time
+        }
 
     for name, (func, lower, upper) in functions.items():
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
         
         current_results = {}
-
-        # Define a reusable method for measuring performance and storing results
-        def measure_performance(current_results, method_name, method_function, *args):
-            start_time = time.time()
-            result = method_function(*args)
-            elapsed_time = time.time() - start_time
-            current_results[method_name] = {
-                "result": result,
-                "time": elapsed_time
-            }
 
         # Evaluate using various methods
         measure_performance(
