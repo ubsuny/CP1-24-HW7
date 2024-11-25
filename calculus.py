@@ -720,6 +720,9 @@ def evaluate_integrals():
 
     This function prints the results for each function and compares the accuracy and efficiency
     of the different methods.
+    
+    Returns:
+        dict: A dictionary with the integration results for each function.
     """
     functions = {
         "exp(-1/x)": (func1, 0.000001, 10),  # Avoiding singularity at x=0
@@ -732,6 +735,9 @@ def evaluate_integrals():
         "max_depth": 10,
         "steps": 10000,
     }
+
+    # Store results for all functions
+    all_results = {}
 
     # Define a reusable method for measuring performance and storing results
     def measure_performance(current_results, method_name, method_function, *args):
@@ -796,13 +802,18 @@ def evaluate_integrals():
 
             if isinstance(correct_digits, float):
                 correct_digits = int(correct_digits)
-                
+
             # Print the results for each method
             print(f"\nMethod: {method}")
             print(f"Result: {approx_value:.6f}")
             print(f"Time Taken: {time_taken:.6f} seconds")
             print(f"Error: {error:.6e}")
-            
+
             # Only print correct digits if available
             if correct_digits is not None:
                 print(f"Correct Digits: {correct_digits}")
+
+        # Store results for the current function
+        all_results[name] = current_results
+
+    return all_results  # Return all results
