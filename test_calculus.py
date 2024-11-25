@@ -10,7 +10,7 @@ import calculus as calc
 
 # Ctypes initialization routine
 # Load the shared library
-lib_path = os.path.abspath("lib_calculus.so")  # Ensure the DLL is correctly named and placed
+lib_path = os.path.abspath("./lib_calculus.so")  # Ensure the DLL is correctly named and placed
 try:
     calculus = ctypes.CDLL(lib_path)
 except OSError as e:
