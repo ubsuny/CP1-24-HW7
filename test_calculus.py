@@ -16,33 +16,43 @@ calculus.verify_arguments.argtypes = [ctypes.c_double]
 calculus.verify_arguments.restype = ctypes.c_bool
 calculus.calculate_square.argtypes = [ctypes.c_double]
 calculus.calculate_square.restype = ctypes.c_double
-lib =ctypes.cdll.LoadLibrary("./calculus.dll")
-lib.adapt_c.argtypes=[ctypes.CFUNCTYPE(ctypes.c_double,ctypes.c_double), ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int]
-lib.adapt_c.restype=ctypes.c_double
+
+calculus.adapt_c.argtypes=[ctypes.CFUNCTYPE(ctypes.c_double,ctypes.c_double)
+, ctypes.c_double, ctypes.c_double, ctypes.c_int, ctypes.c_int]
+calculus.adapt_c.restype=ctypes.c_double
 def cubic(x):
+    """
+    the cubic function
+    """
     return x**3+1
 def cosine(x):
+    """
+    the cosine function
+    """
     return np.cos(1/x)
 def exponential(x):
+    """
+    The exponential function
+    """
     return np.exp(-1/x)
-    
+
 cubic_c=ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 python_cubic_c=cubic_c(cubic)
 cos_c=ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 python_cos_c=cos_c(cosine)
 exp_c=ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 python_exp_c=exp_c(exponential)
-def test_adapt():
+def test_adapt_c():
     """
     test adapt confirms that the adapt_c function 
     produces the expected results for certain 
     integrals.
     """
-    result1=lib.adapt_c(python_cubic_c, -1,1,10,10)
+    result1=calculus.adapt_c(python_cubic_c, -1,1,10,10)
     assert np.isclose(result1, 2, .1)
-    result2=lib.adapt_c(python_cos_c, .01,3*np.pi, 20,100)
+    result2=calculus.adapt_c(python_cos_c, .01,3*np.pi, 20,100)
     assert np.isclose(result2, 7.9, .1)
-    result3=lib.adapt_c(python_exp_c, .01, 10, 100, 1000)
+    result3=calculus.adapt_c(python_exp_c, .01, 10, 100, 1000)
     assert np.isclose(result3, 7.2, .1)
 # Define the function to integrate outside the test function
 def test_wrapper_simpson():
@@ -217,11 +227,13 @@ def test_trapezoid_numpy():
     '''
     assert np.isclose(calc.trapezoid_numpy(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_numpy(exp_minus_one_by_x, 0, 1), 0.148496)
+
 def test_trapezoid_scipy():
     '''
     Unit test for scipy implementation of trapezoid method
     '''
     assert np.isclose(calc.trapezoid_scipy(np.sin, 0, np.pi), 2)
+
 def d3(x):
     """Derivative of x^3 + 1."""
     return 3 * x**2
@@ -233,11 +245,14 @@ def d2(x):
     """Derivative of cos(1/x)."""
     with np.errstate(divide='ignore', invalid='ignore'):
         return np.sin(1 / x) / x**2
+
 @pytest.mark.parametrize("func, bounds, d, sens, expected", [
-    ("x^3+1", [0, 1], 100, 1, 1.25),  # Integral of x^3 + 1 from 0 to 1
-    ("exp(-1/x)", [1, 2], 100, 1, 0.5047),  # Approximation
-    ("cos(1/x)", [0.1, 0.2], 100, 1, 0.0322),  # Approximation
+    (cubic, [0, 1], 100, 1, 1.25),  # Integral of x^3 + 1 from 0 to 1
+    (exponential, [1, 2], 100, 1, 0.5047),  # Approximation
+    (cosine, [0.1, 0.2], 100, 1, 0.0322),  # Approximation
 ])
+
+
 def test_adapt(func, bounds, d, sens, expected):
     """
     Unit test for adaptive integration function
