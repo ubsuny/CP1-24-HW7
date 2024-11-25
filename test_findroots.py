@@ -45,7 +45,9 @@ def test_apply_methods():
         pytest.fail(f"apply_methods failed due to missing file: {str(e)}")
     except TypeError as e:
         pytest.fail(f"apply_methods failed due to TypeError: {str(e)}")
-    except Exception as e:
+    except AssertionError as e:  # Specific exception for failed assertions
+        pytest.fail(f"apply_methods failed due to AssertionError: {str(e)}")
+    except Exception as e:  # Catching any unexpected errors
         pytest.fail(f"apply_methods failed with an unexpected error: {str(e)}")
 
 # Test for plot_function_with_roots
@@ -59,7 +61,9 @@ def test_plot_function_with_roots():
         pytest.fail(f"plot_function_with_roots failed due to missing file: {str(e)}")
     except TypeError as e:
         pytest.fail(f"plot_function_with_roots failed due to TypeError: {str(e)}")
-    except Exception as e:
+    except AssertionError as e:  # Specific exception for failed assertions
+        pytest.fail(f"plot_function_with_roots failed due to AssertionError: {str(e)}")
+    except Exception as e:  # Catching any unexpected errors
         pytest.fail(f"plot_function_with_roots failed with an unexpected error: {str(e)}")
 
 # Test for find_roots
@@ -71,5 +75,7 @@ def test_find_roots():
         pytest.fail(f"find_roots failed with ValueError: {str(e)}")
     except TypeError as e:
         pytest.fail(f"find_roots failed with TypeError: {str(e)}")
-    except Exception as e:
+    except AssertionError as e:  # Specific exception for failed assertions
+        pytest.fail(f"find_roots failed due to AssertionError: {str(e)}")
+    except Exception as e:  # Catching any unexpected errors
         pytest.fail(f"find_roots failed with an unexpected error: {str(e)}")
