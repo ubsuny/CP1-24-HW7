@@ -2,9 +2,42 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-from scipy import optimize
+import ctypes
+import math
 import numpy as np
+from scipy import optimize
 import scipy as sp
+from scipy.integrate import simpson
+
+# General function to integrate
+def wrapper_simpson(f, a, b, n=100):
+    """
+    Integrate a function `f` over the interval [a, b] using Simpson's rule.
+    
+    Parameters:
+        f (function): The function to integrate.
+        a (float): The lower limit of the integration.
+        b (float): The upper limit of the integration.
+        n (int): Number of points to sample for Simpson's rule. Default is 100.
+        
+    Returns:
+        float: The approximate integral value.
+    """
+    # Ensure the number of intervals is even
+    if n % 2 == 1:
+        n += 1  # Make n even by adding 1 if it's odd
+
+    # Generate the x values (evenly spaced points) between a and b
+    x = np.linspace(a, b, n+1)
+
+    # Evaluate the function at the x points
+    y = f(x)
+
+    # Apply Simpson's rule
+    result = simpson(y, x=x)
+
+    return result
+
 # import matplotlib.pyplot as plt
 
 def dummy():
@@ -13,32 +46,33 @@ def dummy():
     """
     return 0
 
-def simpson(f, a, b, n):
+def simpsons_rule(func, a, b, n):
     """
-    Approximate the integral of the function f over the interval [a, b] using Simpson's rule.
+    Approximate the integral of `func` from `a` to `b` using Simpson's Rule.
 
     Parameters:
-    f (function): The function to integrate.
-    a (float): The start of the interval.
-    b (float): The end of the interval.
-    n (int): The number of intervals (must be even). Default is 100.
+        func (callable): The function to integrate.
+        a (float): The start point of the interval.
+        b (float): The end point of the interval.
+        n (int): The number of subintervals (must be even).
 
     Returns:
-    float: The approximate integral of f over [a, b].
+        float: The approximate integral of the function.
     """
+    if n % 2 != 0:
+        raise ValueError("The number of subintervals `n` must be even.")
+    if n <= 0:
+        raise ValueError("The number of subintervals `n` must be positive.")
+
     h = (b - a) / n
-    i = np.arange(0, n)
-    # Ensure n is even
-    if n % 2 == 1:
-        n += 1
+    x = [a + i * h for i in range(n + 1)]
+    y = [func(xi) for xi in x]
 
-    s = f(a) + f(b)
-    s += 4 * np.sum(f(a + i[1::2] * h))
-    s += 2 * np.sum(f(a + i[2:-1:2] * h))
-
-    # Compute the integral and return both the result and the updated value of n
-    integral = s * h / 3
-    return integral, n
+    integral = y[0] + y[-1]
+    integral += 4 * sum(y[i] for i in range(1, n, 2))
+    integral += 2 * sum(y[i] for i in range(2, n - 1, 2))
+    integral *= h / 3
+    return integral
 
 # Function that uses the tangent method for root-finding
 def root_tangent(function, fprime, x0):
@@ -57,6 +91,59 @@ def root_tangent(function, fprime, x0):
     """
     return optimize.newton(function, x0, fprime)
 
+def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
+    """
+    Pure Python implementation of the Newton-Raphson (tangent) method
+    for root finding.
+
+    Parameters:
+    func : function
+        The function for which the root is to be found.
+    fprime : function
+        The derivative of the function.
+    x0 : float
+        Initial guess for the root.
+    tol : float, optional
+        The convergence tolerance (default is 1e-6).
+    maxiter : int, optional
+        The maximum number of iterations (default is 50).
+
+    Returns:
+    dict
+        A dictionary containing:
+        - 'root': The estimated root if convergence is achieved.
+        - 'converged': Boolean indicating whether the method converged.
+        - 'iterations': The number of iterations performed.
+    """
+    for i in range(maxiter):
+        # Evaluate function and its derivative at the current guess
+        f_val = func(x0)
+        fprime_val = fprime(x0)
+        # Handle division by zero
+        if abs(fprime_val) < 1e-12:
+            return {
+                "root": None,
+                "converged": False,
+                "iterations": i,
+                "message": "Derivative too close to zero, division by zero encountered."
+            }
+        # Update the guess using the Newton-Raphson formula
+        x_next = x0 - f_val / fprime_val
+        # Check for convergence
+        if abs(x_next - x0) < tol:
+            return {
+                "root": x_next,
+                "converged": True,
+                "iterations": i + 1
+            }
+        # Update the current guess
+        x0 = x_next
+    # If max iterations are reached without convergence
+    return {
+        "root": None,
+        "converged": False,
+        "iterations": maxiter,
+        "message": "Maximum iterations reached without convergence."}
 
 def a_trap(y, d):
     """
@@ -316,7 +403,6 @@ def trapezoid_python(func, l_lim, u_lim, steps=10000):
     integral_value = (h/2)*(y[0] + y[-1] + 2 * np.sum(y[1:-1]))
     return integral_value
 
-
 def secant_wrapper(func, x0, x1, args=(), maxiter=50):
     """
     Wrapper for the secant method using scipy.optimize.root_scalar.
@@ -353,6 +439,97 @@ def secant_wrapper(func, x0, x1, args=(), maxiter=50):
         "iterations": res.iterations,
         "function_calls": res.function_calls}
 
+# Root Finding with Bisection Method
+def bisection_wrapper(func, a, b, tol=1e-6, max_iter=1000):
+    """
+    Wrapper for SciPy's `bisect` function.
+
+    Parameters:
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Defaults to 1000.
+
+    Returns:
+        Root: The approximate root of the function.
+
+    Raises:
+        ValueError: If func(a) and func(b) do not have opposite signs or if
+                    the function encounters undefined values (singularities).
+    """
+    small_value_threshold = 1e-3  # Threshold for detecting singularities in sin(x)
+
+    try:
+        # Check if sin(a) or sin(b) are very small (near zero)
+        if abs(math.sin(a)) < small_value_threshold:
+            raise ValueError(f"Singularity detected: division by zero in function at x = {a}.")
+        if abs(math.sin(b)) < small_value_threshold:
+            raise ValueError(f"Singularity detected: division by zero in function at x = {b}.")
+
+        # Call the SciPy bisect method if no errors were raised
+        root = optimize.bisect(func, a, b, xtol=tol, maxiter=max_iter)
+
+    except ValueError as e:
+        raise ValueError(f"SciPy bisect failed: {e}") from e
+
+    return root
+
+def bisection_pure_python(func, a, b, tol=1e-6, max_iter=1000):
+    """
+    Pure Python implementation of the bisection method.
+    Finds the root of func within the interval [a, b].
+
+    Parameters:
+        func: The function for which to find the root.
+        a: The start of the interval.
+        b: The end of the interval.
+        tol: The tolerance level for convergence. Defaults to 1e-6.
+        max_iter: Maximum number of iterations. Default is 1000.
+
+    Returns:
+        Root: The approximate root of the function.
+
+    Raises:
+        ValueError: If no root is detected in the initial interval.
+        RuntimeError: If the method exceeds the maximum number of iterations.
+    """
+
+    # Check if the initial interval is valid
+    if func(a) * func(b) >= 0:
+        raise ValueError("The function must have opposite signs at a and b.")
+
+    # Check for singularity or undefined values in the function at the endpoints
+    if abs(math.sin(a)) < 1e-12 or abs(math.sin(b)) < 1e-12:  # Stricter threshold for singularity
+        raise ValueError(f"Singularity detected: sin(a) = {math.sin(a)}, sin(b) = {math.sin(b)}")
+
+    root = (a + b) / 2
+    iteration_count = 0  # Track the number of iterations
+
+    while (b - a) / 2 > tol:
+        # Check for maximum iterations
+        if iteration_count >= max_iter:
+            raise RuntimeError(f"Bisection method exceeded maximum iterations ({max_iter}).")
+
+        iteration_count += 1
+        root = (a + b) / 2
+        value_at_root = func(root)
+
+        # If the function value at root is 0, return the root as an exact solution
+        if value_at_root == 0:
+            break
+
+        # If func(root) is too large, it indicates a singularity
+        if abs(value_at_root) > 1e10:  # Set a threshold for large values
+            raise ValueError(f"Singularity detected: func(root) = {value_at_root}")
+
+        # Narrow the interval
+        if func(a) * value_at_root < 0:
+            b = root
+        else:
+            a = root
+
+    return root
 
 def secant_pure_python(func, x0, x1, args=(), maxiter=50):
     """
@@ -399,3 +576,94 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
+
+def ctypes_stub():
+    """    
+    This method demonstrates the usage of a ctypes wrapper to interact with a C++
+    shared library (DLL).
+
+    The shared library (calculus.dll) currently provides two simple example functions:
+    1. verify_arguments: Validates whether a given number is non-negative.
+    2. calculate_square: Computes the square of a number if it is non-negative, returning
+    NAN for invalid input.
+    """
+    # Load the DLL
+    dll = ctypes.CDLL("./calculus.dll")
+
+    # Define function signatures
+    dll.verify_arguments.argtypes = [ctypes.c_double]
+    dll.verify_arguments.restype = ctypes.c_bool
+
+    dll.calculate_square.argtypes = [ctypes.c_double]
+    dll.calculate_square.restype = ctypes.c_double
+
+    # Test the functions
+    try:
+        # Test valid input
+        result = dll.calculate_square(4.0)
+        print(f"Square of 4.0: {result}")  # Should print 16.0
+
+        # Test invalid input
+        result = dll.calculate_square(-4.0)
+        if math.isnan(result):
+            print("Square of -4.0: Invalid input (returned NAN)")
+        else:
+            print(f"Square of -4.0: {result}")
+
+        # Verify arguments
+        print(f"verify_arguments(4.0): {dll.verify_arguments(4.0)}")  # True
+        print(f"verify_arguments(-4.0): {dll.verify_arguments(-4.0)}")  # False
+
+    except OSError as e:
+        # Specific exception for issues loading the DLL or accessing its symbols
+        print(f"OS error: {e}")
+
+    except ValueError as e:
+        # Exception for issues with invalid inputs or conversions
+        print(f"Value error: {e}")
+
+    except TypeError as e:
+        # Exception for type mismatch errors
+        print(f"Type error: {e}")
+
+def calculate_integrals():
+    """
+    Calculate integrals of the three given functions using all available algorithms.
+    Print the results for each function and algorithm.
+    """
+    print("Calculating integrals for all functions using all algorithms...\n")
+
+    # List of functions and their integration intervals
+    functions = [
+        (func1, "exp(-1/x)", 0.01, 10),
+        (func2, "cos(1/x)", 0.01, 3 * np.pi),
+        (func3, "x³ + 1", -1, 1)
+    ]
+
+    # Algorithms to use
+    algorithms = {
+        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
+        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
+        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
+            f, a, b, tol=1e-6, remaining_depth=10
+        ),
+    }
+
+    # Iterate over each function and apply all algorithms
+    for func, name, a, b in functions:
+        print(f"Function: {name} on [{a}, {b}]")
+        for algo_name, algo in algorithms.items():
+            try:
+                result = algo(func, a, b)
+                print(f"{algo_name}: {result:.6f}")
+            except ZeroDivisionError as e:
+                print(f"{algo_name}: Division by zero error - {e}")
+            except ValueError as e:
+                print(f"{algo_name}: Invalid value error - {e}")
+            except OverflowError as e:
+                print(f"{algo_name}: Overflow error - {e}")
+        print("\n")
+
+
+if __name__ == "__main__":
+    calculate_integrals()
