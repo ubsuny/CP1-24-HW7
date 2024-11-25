@@ -486,44 +486,44 @@ def test_edge_cases():
     """
     
     # Define edge cases for each function with respective bounds
-edge_cases = [
-    {
-        "func": calc.func1,
-        "lower": 1e-10,
-        "upper": 10,
-        "expected": 0.1485
-    },
-    {
-        "func": calc.func2,
-        "lower": 1e-10,
-        "upper": 3 * np.pi,
-        "expected": 0.1838
-    },
-    {
-        "func": calc.func3,
-        "lower": -1e6,
-        "upper": 1e6,
-        "expected": 0.0  # Assuming large cancellation results in ~0
-    }
-]
+    edge_cases = [
+        {
+            "func": calc.func1,
+            "lower": 1e-10,
+            "upper": 10,
+            "expected": 0.1485
+        },
+        {
+            "func": calc.func2,
+            "lower": 1e-10,
+            "upper": 3 * np.pi,
+            "expected": 0.1838
+        },
+        {
+            "func": calc.func3,
+            "lower": -1e6,
+            "upper": 1e6,
+            "expected": 0.0  # Assuming large cancellation results in ~0
+        }
+    ]
 
     for case in edge_cases:
-    try:
-        result = calc.adaptive_trap_py(
-            case["func"],
-            case["lower"],
-            case["upper"],
-            tol=1e-6,
-            remaining_depth=10,
-        )
-        assert np.isclose(result, case["expected"], atol=1e-2), (
-            f"Integration result for edge case was {result:.6f}, "
-            f"expected approximately {case['expected']:.6f}"
-        )
-    except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-        pytest.fail(
-            f"Edge case integration raised an unexpected exception: {e}"
-        )
+        try:
+            result = calc.adaptive_trap_py(
+                case["func"],
+                case["lower"],
+                case["upper"],
+                tol=1e-6,
+                remaining_depth=10,
+            )
+            assert np.isclose(result, case["expected"], atol=1e-2), (
+                f"Integration result for edge case was {result:.6f}, "
+                f"expected approximately {case['expected']:.6f}"
+            )
+        except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
+            pytest.fail(
+                f"Edge case integration raised an unexpected exception: {e}"
+            )
         
 @patch('calculus.adaptive_trap_py', return_value=0.1485)
 @patch('calculus.trapezoid_numpy', return_value=0.1484)
