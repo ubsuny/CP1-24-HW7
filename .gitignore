@@ -4,7 +4,9 @@ __pycache__/
 *$py.class
 
 # C extensions
-*.so
+# removed because the C++ implementations are being
+# shipped as a .so file
+#*.so       
 
 # Distribution / packaging
 .Python
