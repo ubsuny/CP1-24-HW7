@@ -10,7 +10,7 @@ def a_trap(y, d):
     return np.trapezoid(y,dx=d)
 
 def sec_derivative(func, x,dx):
-    return np.gradient(np.gradient(func(x)),dx)
+    return np.gradient(np.gradient(func(x),dx),dx)
 
 def adapt(func, bounds, d, sens):
     """
@@ -66,3 +66,4 @@ def exp(x):
         vals.append(np.exp(-1/i))
     return vals
 
+print(adapt(cosine, [.01, 3*np.pi], 20,100))

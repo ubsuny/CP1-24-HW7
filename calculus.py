@@ -1,14 +1,18 @@
 """
-calculus.py
+This module implements different integration and root finding algorithms
 """
 
 import numpy as np
 
+import scipy as sp
+# import matplotlib.pyplot as plt
+
 def dummy():
-    """ dummy functions for template file
-    just the same function that Dr Thomay made"""
+    """ 
+    dummy function for template file
+    """
     return 0
-  
+
 def a_trap(y, d):
     """
     trap takes in y as an array of y values
@@ -18,8 +22,7 @@ def a_trap(y, d):
     """
     return np.trapezoid(y,dx=d)
 
-def sec_derivative(func, x,dx):
-    return np.gradient(np.gradient(func(x)),dx)
+
 
 def adapt(func, bounds, d, sens):
     """
@@ -40,7 +43,12 @@ def adapt(func, bounds, d, sens):
     #between the bounds
     x=np.linspace(bounds[0], bounds[1], d+1)
     dx=x[1]-x[0]
-    d2ydx2=sec_derivative(func,x,dx)
+    if func=="x^3+1":
+        dydx=d3(x)
+    elif func=="exp(-1/x)":
+        dydx=d1(x)
+    elif func=="cos(1/x)":
+        dydx=d2(x)
 
     loopx=enumerate(x)
     summer=0
@@ -52,10 +60,15 @@ def adapt(func, bounds, d, sens):
     #the total integral.
     for count, val in loopx:
         if count!=len(x)-1:
-            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*d2ydx2[count]))+1))
-            new_y=func(new_x)
-            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*d2ydx2[count]))+1))-1))
-    return summer
+            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*dydx[count]))+1))
+            if func=="x^3+1":
+                new_y=func3(new_x)
+            elif func=="exp(-1/x)":
+                new_y=func1(new_x)
+            elif func=="cos(1/x)":
+                new_y=func2(new_x)
+            sum+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
+    return sum
 
 
 
