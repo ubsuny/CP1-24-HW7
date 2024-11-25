@@ -13,6 +13,8 @@ extern "C" {
     typedef struct {
         bool converged;
         double root;
+        double p_root;
+        int p_iter;
     } Result;
     /**
      * @brief Finds the root of a function using the tangent method.
@@ -26,6 +28,8 @@ extern "C" {
     Result cpp_root_tangent(func f, deriv fprime, double x0, double tol = 1e-6, int max_iter = 100) {
         Result result;
         result.converged = false;
+        result.p_iter = 0; // Previous iteration
+        result.p_root = 0; // Previous number
         result.root = x0;
         double x = x0;
         for (int i = 0; i < max_iter; i++) {
@@ -37,7 +41,9 @@ extern "C" {
             double x_next = x - fx / fpx;
             if (fabs(x_next - x) < tol) {
                 result.converged = true;
+                result.p_root = x;
                 result.root = x_next;
+                result.p_iter = i;
                 return result;
             }
             x = x_next;

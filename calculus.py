@@ -158,6 +158,8 @@ class Result(ctypes.Structure):
     _fields_ = [
         ("converged", ctypes.c_bool),
         ("root", ctypes.c_double),
+        ("p_root", ctypes.c_double),
+        ("p_iter", ctypes.c_int),
     ]
     # Placeholder methods to avoid the linting complaining
     def to_dict(self):
