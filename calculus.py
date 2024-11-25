@@ -6,7 +6,6 @@ import os
 import ctypes
 import math
 import numpy as np
-from scipy import optimize
 import scipy as sp
 from scipy.integrate import simpson
 
@@ -90,7 +89,7 @@ def root_tangent(function, fprime, x0, tolerance = 1e-6, maxiterations = 1000):
     Outputs:
     (number): the desired root (zero) of the function
     """
-    return optimize.newton(function, x0, fprime, tol = tolerance, maxiter = maxiterations)
+    return sp.optimize.newton(function, x0, fprime, tol = tolerance, maxiter = maxiterations)
 
 def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
     """
