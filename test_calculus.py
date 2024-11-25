@@ -403,6 +403,49 @@ def test_secant_wrapper_doesnt_converge():
     assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
                                args=(1,0,1), maxiter = 50)['converged'] is False
 
+
+def test_adaptive_trap_py_exp():
+    """
+    Unit test for adaptive trapezoidal rule for exp(-1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func1, 0.01, 10, tol=1e-6)
+    expected = 7.22545022194032
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_adaptive_trap_py_cos():
+    """
+    Unit test for adaptive trapezoidal rule for cos(1/x).
+    """
+    result = calc.adaptive_trap_py(calc.func2, 0.01, 3 * np.pi, tol=1e-6)
+    expected = 7.908470226410015
+    assert np.isclose(result, expected, atol=1e-6), f"Expected {expected}, got {result}"
+
+def test_trapezoid_pure_python():
+    """
+    Unit test for pure Python trapezoidal implementation.
+    """
+    result = calc.trapezoid(lambda x: x**2, 0, 1, 100)
+    expected = 1 / 3
+    assert np.isclose(result, expected, atol=1e-4), f"Expected {expected}, got {result}"
+
+
+def test_secant_method():
+    """
+    Unit test for the secant method (pure Python).
+    """
+    result = calc.secant_pure_python(lambda x: x**2 - 4, 1, 3, maxiter=50)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
+
+def test_secant_wrapper_method():
+    """
+    Unit test for the secant wrapper using SciPy.
+    """
+    result = calc.secant_wrapper(lambda x: x**2 - 4, 1, 3)
+    expected = 2.0
+    assert np.isclose(result["root"], expected, atol=1e-6), \
+        f"Expected {expected}, got {result['root']}"
 # ctypes and c++ unit tests
 def test_trapezoid_python():
     '''
