@@ -433,7 +433,7 @@ def test_calculate_square():
     # Test an invalid input (negative number)
     result = calculus.calculate_square(-4.0)
     assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
-
+    
 def test_evaluate_integrals():
     """
     Unit test for evaluate_integrals function.
@@ -444,7 +444,6 @@ def test_evaluate_integrals():
     Assertions:
         - Verifies that the computed integral is close to the expected value for each function.
     """
-
     # Expected values for each function over their respective ranges
     expected_results = {
         "exp(-1/x)": 0.1485,  # Approximation for [0.000001, 10]
@@ -456,17 +455,17 @@ def test_evaluate_integrals():
 
     # Mocking time.sleep to speed up the testing process if it was part of the original function
     with patch('time.sleep', return_value=None):
-        # Run evaluate_integrals and capture stdout
+        # Run evaluate_integrals and capture the results
         try:
-            calc.evaluate_integrals()
+            results = calc.evaluate_integrals()
         except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
             pytest.fail(f"evaluate_integrals() raised an unexpected exception: {e}")
 
     # Loop through expected results and verify if output is close to expected value
     for func_name, expected in expected_results.items():
-        result = calc.evaluate_integral(func_name)
+        result = results[func_name]["Scipy Trapezoidal"]["result"]
         assert np.isclose(result, expected, atol=tol), (
-            f"Integration result for {func_name} was {result:.6f},"
+            f"Integration result for {func_name} was {result:.6f}, "
             f"expected approximately {expected:.6f}"
         )
 
@@ -484,7 +483,6 @@ def test_edge_cases():
     Assertions:
         - Verifies that the calculated results are close to expected values for each edge case.
     """
-
     # Define edge cases for each function with respective bounds
     edge_cases = [
         {
@@ -521,14 +519,11 @@ def test_edge_cases():
                 f"expected approximately {case['expected']:.6f}"
             )
         except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-            pytest.fail(
-                f"Edge case integration raised an unexpected exception: {e}"
-            )
-     
+            pytest.fail(f"Edge case integration raised an unexpected exception: {e}")
+
 @patch('calculus.adaptive_trap_py', return_value=0.1485)
 @patch('calculus.trapezoid_numpy', return_value=0.1484)
 @patch('calculus.trapezoid_scipy', return_value=0.1484)
-
 def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     """
     Unit test for individual integration methods using mocking.
@@ -541,9 +536,8 @@ def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     - mock_numpy: Mock of trapezoid_numpy function.
     - mock_scipy: Mock of trapezoid_scipy function.
     """
-
     # Run evaluate_integrals() and ensure all mocks are called
-    calc.evaluate_integrals()
+    results = calc.evaluate_integrals()
 
     # Assert that each mocked method was called at least once
     assert mock_adapt.called, "Adaptive Trapezoidal method was not called."
