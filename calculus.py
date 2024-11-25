@@ -4,6 +4,7 @@ This module implements different integration and root finding algorithms
 """
 import ctypes
 import math
+import time
 import numpy as np
 from scipy import optimize
 import scipy as sp
@@ -607,6 +608,7 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "converged": False,
         "iterations": maxiter}
 
+
 def ctypes_stub():
     """    
     This method demonstrates the usage of a ctypes wrapper to interact with a C++
@@ -719,22 +721,18 @@ def secant_root(callback, x0, x1, tol, max_iter):
     # Invoke the C++ function and return the result
     return calculus.secant_root(wrapped_callback, x0, x1, tol, max_iter)
 
-
-
 def calculate_integrals():
     """
     Calculate integrals of the three given functions using all available algorithms.
     Print the results for each function and algorithm.
     """
     print("Calculating integrals for all functions using all algorithms...\n")
-
     # List of functions and their integration intervals
     functions = [
         (func1, "exp(-1/x)", 0.01, 10),
         (func2, "cos(1/x)", 0.01, 3 * np.pi),
         (func3, "x³ + 1", -1, 1)
     ]
-
     # Algorithms to use
     algorithms = {
         "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
@@ -762,3 +760,52 @@ def calculate_integrals():
 
 if __name__ == "__main__":
     calculate_integrals()
+
+def evaluate_integrals():
+    """
+    Evaluate integrals of predefined functions using multiple methods and compare results.
+
+    Returns:
+        dict: A dictionary with the integration results for each function.
+    """
+    def integrate_and_compare(func, lower, upper):
+        """Integrate using multiple methods and compare results."""
+        methods = [
+            ("Adaptive Trapezoidal", adaptive_trap_py,
+             (func, lower, upper, 1e-6, 10)),
+            ("Numpy Trapezoidal", trapezoid_numpy,
+             (func, lower, upper, 10000)),
+            ("Scipy Trapezoidal", trapezoid_scipy,
+             (func, lower, upper, 10000)),
+        ]
+        results = {}
+        for method_name, method_function, args in methods:
+            start = time.time()
+            results[method_name] = {
+                "result": method_function(*args),
+                "time": time.time() - start,
+            }
+
+        # Use Scipy as benchmark and compare methods
+        benchmark = results["Scipy Trapezoidal"]["result"]
+        for method, data in results.items():
+            error = abs(benchmark - data["result"])
+            correct_digits = -np.log10(error) if error > 0 else None
+            print(
+                f"\nMethod: {method}\n"
+                f"Result: {data['result']:.6f}\n"
+                f"Time: {data['time']:.6f} seconds\n"
+                f"Error: {error:.6e}\n"
+                f"Correct Digits: {int(correct_digits) if correct_digits else 'N/A'}"
+            )
+
+        return results
+
+    return {
+        name: integrate_and_compare(func, lower, upper)
+        for name, (func, lower, upper) in {
+            "exp(-1/x)": (func1, 1e-6, 10),
+            "cos(1/x)": (func2, 1e-6, 3 * np.pi),
+            "x^3+1": (func3, -1, 1),
+        }.items()
+    }
