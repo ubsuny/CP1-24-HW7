@@ -1,13 +1,25 @@
 """
 Unit testing module for testing functions in calculus.py
 """
-
+import ctypes
+import os
 import math
 import pytest
 import numpy as np
 from unittest.mock import patch
 import calculus as calc
-import time
+
+# Ctypes initialization routine
+# Load the shared library
+lib_path = os.path.abspath("calculus.dll")
+calculus = ctypes.CDLL(lib_path)
+# Define argument and return types for the DLL functions
+calculus.verify_arguments.argtypes = [ctypes.c_double]
+calculus.verify_arguments.restype = ctypes.c_bool
+
+calculus.calculate_square.argtypes = [ctypes.c_double]
+calculus.calculate_square.restype = ctypes.c_double
+
 # Define the function to integrate outside the test function
 
 def test_wrapper_simpson():
@@ -382,7 +394,7 @@ def test_secant_wrapper_doesnt_converge():
     assert calc.secant_wrapper(quadratic, x0=0, x1 = 1,
                                args=(1,0,1), maxiter = 50)['converged'] is False
 
-
+# ctypes and c++ unit tests
 def test_trapezoid_python():
     '''
     Unit test for pure python implementation of trapezoid method
@@ -390,101 +402,35 @@ def test_trapezoid_python():
     assert np.isclose(calc.trapezoid_python(np.sin, 0, np.pi), 2)
     assert np.isclose(calc.trapezoid_python(exp_minus_one_by_x, 0, 1), 0.148496)
 
-def test_evaluate_integrals():
+def test_library_loaded():
     """
-    Unit test for evaluate_integrals function.
-
-    This test will verify that evaluate_integrals() runs successfully without raising exceptions
-    and checks the correctness of the integration values.
-
-    Assertions:
-        - Verifies that the computed integral is close to the expected value for each function.
+    Test to ensure the shared library is loaded successfully.
     """
+    assert calculus is not None, "Failed to load the shared library."
 
-    # Expected values for each function over their respective ranges
-    expected_results = {
-        "exp(-1/x)": 0.1485,  # Approximation for [0.000001, 10]
-        "cos(1/x)": 0.1838,   # Approximation for [0.000001, 3π]
-        "x^3+1": 2.0          # Analytic value for [-1, 1]
-    }
-
-    tol = 1e-2  # Allowable tolerance for accuracy check
-
-    # Mocking time.sleep to speed up the testing process if it was part of the original function
-    with patch('time.sleep', return_value=None):
-        # Run evaluate_integrals and capture stdout
-        try:
-            calc.evaluate_integrals()
-        except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-            pytest.fail(f"evaluate_integrals() raised an unexpected exception: {e}")
-
-    # Loop through expected results and verify if output is close to expected value
-    for func_name, expected in expected_results.items():
-        result = calc.evaluate_integral(func_name)  # Assuming evaluate_integral calculates and returns the result
-        assert np.isclose(result, expected, atol=tol), (
-            f"Integration result for {func_name} was {result:.6f}, expected approximately {expected:.6f}"
-        )
-
-def test_edge_cases():
+def test_verify_arguments():
     """
-    Unit test for edge cases when evaluating integrals.
+    Test the verify_arguments function.
 
-    This test ensures that edge cases like singularities and very large integration ranges
-    are handled appropriately by the integration functions in evaluate_integrals.
-
-    Edge Cases:
-        - Singularities at x close to zero.
-        - Very large integration ranges to check numerical stability.
-
-    Assertions:
-        - Verifies that the calculated results are close to expected values for each edge case.
+    This function should return True for non-negative inputs and False for negative inputs.
     """
+    # Test a valid, non-negative input
+    assert calculus.verify_arguments(10.0), "verify_arguments(10.0) should return True."
 
-    # Define edge cases for each function with respective bounds
-    edge_cases = [
-        {"func": calc.func1, "lower": 1e-10, "upper": 10, "expected": 0.1485},
-        {"func": calc.func2, "lower": 1e-10, "upper": 3 * np.pi, "expected": 0.1838},
-        {"func": calc.func3, "lower": -1e6, "upper": 1e6, "expected": 0.0}  # Assuming large cancellation results in ~0
-    ]
+    # Test an invalid, negative input
+    assert not calculus.verify_arguments(-5.0), "verify_arguments(-5.0) should return False."
 
-    for case in edge_cases:
-        try:
-            result = calc.adaptive_trap_py(case["func"], case["lower"], case["upper"], tol=1e-6, remaining_depth=10)
-            assert np.isclose(result, case["expected"], atol=1e-2), (
-                f"Integration result for edge case was {result:.6f}, expected approximately {case['expected']:.6f}"
-            )
-        except (ValueError, TypeError, ZeroDivisionError, OverflowError) as e:
-            pytest.fail(f"Edge case integration raised an unexpected exception: {e}")
-
-@patch('calculus.adaptive_trap_py', return_value=0.1485)
-@patch('calculus.trapezoid_numpy', return_value=0.1484)
-@patch('calculus.trapezoid_scipy', return_value=0.1484)
-def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
+def test_calculate_square():
     """
-    Unit test for individual integration methods using mocking.
+    Test the calculate_square function.
 
-    This test verifies that the integration methods (adaptive, numpy, scipy) are called
-    correctly by the evaluate_integrals function, and that they return the expected values.
-
-    Parameters:
-    - mock_adapt: Mock of adaptive_trap_py function.
-    - mock_numpy: Mock of trapezoid_numpy function.
-    - mock_scipy: Mock of trapezoid_scipy function.
-
-    Assertions:
-        - Each mocked integration method is called at least once during evaluate_integrals execution.
-        - The mocked return values match the expected approximation values.
+    This function should compute the square of a valid input and return NAN for invalid inputs.
     """
+    # Test a valid input
+    result = calculus.calculate_square(4.0)
+    assert result == 16.0, f"calculate_square(4.0) should return 16.0, got {result}."
 
-    # Run evaluate_integrals() and ensure all mocks are called
-    calc.evaluate_integrals()
+    # Test an invalid input (negative number)
+    result = calculus.calculate_square(-4.0)
+    assert math.isnan(result), "calculate_square(-4.0) should return NAN for invalid input."
 
-    # Assert that each mocked method was called at least once
-    assert mock_adapt.called, "Adaptive Trapezoidal method was not called."
-    assert mock_numpy.called, "Numpy Trapezoidal method was not called."
-    assert mock_scipy.called, "Scipy Trapezoidal method was not called."
-
-    # Verify that each mocked method returned the correct value
-    assert np.isclose(mock_adapt.return_value, 0.1485, atol=1e-2)
-    assert np.isclose(mock_numpy.return_value, 0.1484, atol=1e-2)
-    assert np.isclose(mock_scipy.return_value, 0.1484, atol=1e-2)

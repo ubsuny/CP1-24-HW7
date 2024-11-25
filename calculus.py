@@ -2,7 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
-
+import ctypes
 import math
 import numpy as np
 from scipy import optimize
@@ -632,32 +632,78 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "converged": False,
         "iterations": maxiter}
 
-def evaluate_integrals():
+
+def ctypes_stub():
+    """    
+    This method demonstrates the usage of a ctypes wrapper to interact with a C++
+    shared library (DLL).
+
+    The shared library (calculus.dll) currently provides two simple example functions:
+    1. verify_arguments: Validates whether a given number is non-negative.
+    2. calculate_square: Computes the square of a number if it is non-negative, returning
+    NAN for invalid input.
     """
-    Evaluate integrals of the three given functions using various integration methods.
-    Compare accuracies and efficiencies for each method.
+    # Load the DLL
+    dll = ctypes.CDLL("./calculus.dll")
 
-    Functions:
-        func1: exp(-1/x)
-        func2: cos(1/x)
-        func3: x^3 + 1
+    # Define function signatures
+    dll.verify_arguments.argtypes = [ctypes.c_double]
+    dll.verify_arguments.restype = ctypes.c_bool
 
-    Methods:
-        Adaptive Trapezoidal, Numpy Trapezoidal, Scipy Trapezoidal
+    dll.calculate_square.argtypes = [ctypes.c_double]
+    dll.calculate_square.restype = ctypes.c_double
 
-    This function prints the results for each function and compares the accuracy and efficiency
-    of the different methods.
+    # Test the functions
+    try:
+        # Test valid input
+        result = dll.calculate_square(4.0)
+        print(f"Square of 4.0: {result}")  # Should print 16.0
+
+        # Test invalid input
+        result = dll.calculate_square(-4.0)
+        if math.isnan(result):
+            print("Square of -4.0: Invalid input (returned NAN)")
+        else:
+            print(f"Square of -4.0: {result}")
+
+        # Verify arguments
+        print(f"verify_arguments(4.0): {dll.verify_arguments(4.0)}")  # True
+        print(f"verify_arguments(-4.0): {dll.verify_arguments(-4.0)}")  # False
+
+    except OSError as e:
+        # Specific exception for issues loading the DLL or accessing its symbols
+        print(f"OS error: {e}")
+
+    except ValueError as e:
+        # Exception for issues with invalid inputs or conversions
+        print(f"Value error: {e}")
+
+    except TypeError as e:
+        # Exception for type mismatch errors
+        print(f"Type error: {e}")
+
+def calculate_integrals():
     """
-    functions = {
-        "exp(-1/x)": (func1, 0.000001, 10),  # Avoiding singularity at x=0
-        "cos(1/x)": (func2, 0.000001, 3 * np.pi),  # Avoiding singularity at x=0
-        "x^3+1": (func3, -1, 1)
-    }
+    Calculate integrals of the three given functions using all available algorithms.
+    Print the results for each function and algorithm.
+    """
+    print("Calculating integrals for all functions using all algorithms...\n")
 
-    integration_params = {
-        "tol": 1e-6,
-        "max_depth": 10,
-        "steps": 10000,
+    # List of functions and their integration intervals
+    functions = [
+        (func1, "exp(-1/x)", 0.01, 10),
+        (func2, "cos(1/x)", 0.01, 3 * np.pi),
+        (func3, "x³ + 1", -1, 1)
+    ]
+
+    # Algorithms to use
+    algorithms = {
+        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
+        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
+        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
+            f, a, b, tol=1e-6, remaining_depth=10
+        ),
+
     }
 
     # Define a reusable method for measuring performance and storing results
