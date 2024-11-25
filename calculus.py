@@ -682,29 +682,6 @@ def ctypes_stub():
         # Exception for type mismatch errors
         print(f"Type error: {e}")
 
-def calculate_integrals():
-    """
-    Calculate integrals of the three given functions using all available algorithms.
-    Print the results for each function and algorithm.
-    """
-    print("Calculating integrals for all functions using all algorithms...\n")
-
-    # List of functions and their integration intervals
-    functions = [
-        (func1, "exp(-1/x)", 0.01, 10),
-        (func2, "cos(1/x)", 0.01, 3 * np.pi),
-        (func3, "x³ + 1", -1, 1)
-    ]
-
-    # Algorithms to use
-    algorithms = {
-        "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
-        "Trapezoidal Rule": lambda f, a, b: trapezoid(f, a, b, 1000),
-        "Adaptive Trapezoidal Rule": lambda f, a, b: adaptive_trap_py(
-            f, a, b, tol=1e-6, remaining_depth=10
-        ),
-    }
-    
 def evaluate_integrals():
     """
     Evaluate integrals of the three given functions using various integration methods.
