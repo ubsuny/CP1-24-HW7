@@ -539,6 +539,11 @@ def test_individual_methods(mock_adapt, mock_numpy, mock_scipy):
     # Run evaluate_integrals() and ensure all mocks are called
     results = calc.evaluate_integrals()
 
+    # Ensure results contain expected keys
+    assert "exp(-1/x)" in results, "Results do not contain 'exp(-1/x)' function key."
+    assert "cos(1/x)" in results, "Results do not contain 'cos(1/x)' function key."
+    assert "x^3+1" in results, "Results do not contain 'x^3+1' function key."
+
     # Assert that each mocked method was called at least once
     assert mock_adapt.called, "Adaptive Trapezoidal method was not called."
     assert mock_numpy.called, "Numpy Trapezoidal method was not called."
