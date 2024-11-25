@@ -2,6 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
+import os
 import ctypes
 import math
 import numpy as np
@@ -145,6 +146,8 @@ def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
         "iterations": maxiter,
         "message": "Maximum iterations reached without convergence."}
 
+# Create the DLL
+os.system("gcc -shared -o tangent_root_finder.dll -fPIC tangent_root_finder.cpp")
 # Loading the DLL
 root_cpp = ctypes.CDLL("./tangent_root_finder.dll")
 # Defining the python-equivalent data types
@@ -163,7 +166,7 @@ class Result(ctypes.Structure):
     def to_list(self):
         """Convert the result to a list."""
         return [self.converged, self.root]
-FUNC_TYPE = ctypes.CFUNCTYPE(ctypes.c_double)
+FUNC_TYPE = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
 # Defining the function signatures
 root_cpp.cpp_root_tangent.argtypes = [FUNC_TYPE, FUNC_TYPE,
                                  ctypes.c_double, ctypes.c_double, ctypes.c_int]
@@ -184,16 +187,21 @@ def cpp_root_tangent(py_func, py_fprime, x0, tol = 1e-6, maxiter = 100):
     Outputs:
     result (class [c structure]): contains information about the convergence and the root
     """
-    if not callable(py_func) or not callable(py_fprime):
-        raise ValueError("py_func and py_fprime must be callable functions.")
-    c_func = FUNC_TYPE(py_func)
-    c_fprime = FUNC_TYPE(py_fprime)
+    try:
+        c_func = FUNC_TYPE(py_func)
+        c_fprime = FUNC_TYPE(py_fprime)
+    except Exception as e:
+        raise TypeError("py_func and py_fprime must be callable functions.") from e
     c_guess = ctypes.c_double(x0)
     c_tol = ctypes.c_double(tol)
     c_iter = ctypes.c_int(maxiter)
     result = root_cpp.cpp_root_tangent(c_func, c_fprime, c_guess, c_tol, c_iter)
-    if not result.converged:
-        raise RuntimeError(f"Root finding did not converge within {maxiter} iterations.")
+    print(result.root)
+    try:
+        if not result.converged:
+            raise RuntimeError(f"Root finding did not converge within {maxiter} iterations.")
+    except RuntimeError as e:
+        raise e
     return result
 
 def a_trap(y, d):
