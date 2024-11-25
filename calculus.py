@@ -661,17 +661,19 @@ def evaluate_integrals():
         "steps": 10000,
     }
 
+    # Loop through each function and calculate the integral using different methods
     for name, (func, lower, upper) in functions.items():
-        results = {}  # Store the results and metadata
-
         print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
+        
+        # Create a new dictionary to store results in each loop iteration
+        current_results = {}
 
         # Define a reusable method for measuring performance and storing results
         def measure_performance(method_name, method_function, *args):
             start_time = time.time()
             result = method_function(*args)
             elapsed_time = time.time() - start_time
-            results[method_name] = {
+            current_results[method_name] = {
                 "result": result,
                 "time": elapsed_time
             }
@@ -706,10 +708,10 @@ def evaluate_integrals():
         )
 
         # Assume the result from Scipy as the benchmark for accuracy comparison
-        true_value = results["Scipy Trapezoidal"]["result"]
+        true_value = current_results["Scipy Trapezoidal"]["result"]
 
         # Compare and print results
-        for method, data in results.items():
+        for method, data in current_results.items():
             approx_value = data["result"]
             time_taken = data["time"]
 
@@ -717,8 +719,8 @@ def evaluate_integrals():
             error = abs(true_value - approx_value)
             correct_digits = -np.log10(error) if error > 0 else "All"
             if isinstance(correct_digits, float):
-                correct_digits = int(correct_digits) 
-
+                correct_digits = int(correct_digits)
+                
             # Print the results for each method
             print(f"\nMethod: {method}")
             print(f"Result: {approx_value:.6f}")
