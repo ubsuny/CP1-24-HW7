@@ -5,7 +5,7 @@ functions, including various edge cases and error handling scenarios.
 
 import math
 import pytest
-from findroots import func_1_safe, func_2, func_3, calculate_accuracy, apply_methods, plot_function_with_roots
+from findroots import func_1_safe, func_2, func_3, calculate_accuracy, apply_methods, plot_function_with_roots, find_roots
 
 # Test for func_1_safe
 def test_func_1_safe():
@@ -39,24 +39,31 @@ def test_apply_methods():
     """Test the apply_methods function."""
     try:
         apply_methods(func_2, (-1, 1), "y(x) = tanh(x)", true_root=0.0, filename="test_plot.png")
+    except ValueError as e:
+        pytest.fail(f"apply_methods failed with ValueError: {str(e)}")
+    except FileNotFoundError as e:
+        pytest.fail(f"apply_methods failed due to missing file: {str(e)}")
     except Exception as e:
-        pytest.fail(f"apply_methods failed with error: {str(e)}")
+        pytest.fail(f"apply_methods failed with an unexpected error: {str(e)}")
 
 # Test for plot_function_with_roots
 def test_plot_function_with_roots():
     """Test the plot_function_with_roots function."""
     try:
         plot_function_with_roots(func_3, (0, math.pi), [math.pi], 'test_plot.png', "y(x) = sin(x)")
+    except ValueError as e:
+        pytest.fail(f"plot_function_with_roots failed with ValueError: {str(e)}")
+    except FileNotFoundError as e:
+        pytest.fail(f"plot_function_with_roots failed due to missing file: {str(e)}")
     except Exception as e:
-        pytest.fail(f"plot_function_with_roots failed with error: {str(e)}")
+        pytest.fail(f"plot_function_with_roots failed with an unexpected error: {str(e)}")
 
 # Test for find_roots
 def test_find_roots():
     """Test the find_roots function."""
     try:
-        from findroots import find_roots
         find_roots()
-    except ImportError as e:
-        pytest.fail(f"find_roots failed due to import error: {str(e)}")
+    except ValueError as e:
+        pytest.fail(f"find_roots failed with ValueError: {str(e)}")
     except Exception as e:
-        pytest.fail(f"find_roots failed with error: {str(e)}")
+        pytest.fail(f"find_roots failed with an unexpected error: {str(e)}")
