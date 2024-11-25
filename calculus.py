@@ -679,7 +679,7 @@ def ctypes_stub():
     except TypeError as e:
         # Exception for type mismatch errors
         print(f"Type error: {e}")
-        
+
 def calculate_integrals():
     """
     Calculate integrals of the three given functions using all available algorithms.
@@ -721,4 +721,4 @@ def calculate_integrals():
 
 if __name__ == "__main__":
     calculate_integrals()
-
+    
