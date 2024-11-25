@@ -43,6 +43,8 @@ def test_apply_methods():
         pytest.fail(f"apply_methods failed with ValueError: {str(e)}")
     except FileNotFoundError as e:
         pytest.fail(f"apply_methods failed due to missing file: {str(e)}")
+    except TypeError as e:
+        pytest.fail(f"apply_methods failed due to TypeError: {str(e)}")
     except Exception as e:
         pytest.fail(f"apply_methods failed with an unexpected error: {str(e)}")
 
@@ -55,6 +57,8 @@ def test_plot_function_with_roots():
         pytest.fail(f"plot_function_with_roots failed with ValueError: {str(e)}")
     except FileNotFoundError as e:
         pytest.fail(f"plot_function_with_roots failed due to missing file: {str(e)}")
+    except TypeError as e:
+        pytest.fail(f"plot_function_with_roots failed due to TypeError: {str(e)}")
     except Exception as e:
         pytest.fail(f"plot_function_with_roots failed with an unexpected error: {str(e)}")
 
@@ -65,5 +69,7 @@ def test_find_roots():
         find_roots()
     except ValueError as e:
         pytest.fail(f"find_roots failed with ValueError: {str(e)}")
+    except TypeError as e:
+        pytest.fail(f"find_roots failed with TypeError: {str(e)}")
     except Exception as e:
         pytest.fail(f"find_roots failed with an unexpected error: {str(e)}")
