@@ -130,3 +130,98 @@ extern "C" {
     }
 
 }
+
+typedef double (*CallbackFunction)(double);
+
+extern "C" {
+    /**
+     * @brief Implements the trapezoidal rule for numerical integration.
+     *
+     * This function approximates the integral of a given callback function
+     * over a specified interval [a, b] using the trapezoidal rule.
+     *
+     * @param callback The function to integrate.
+     * @param a The lower limit of integration.
+     * @param b The upper limit of integration.
+     * @param n The number of subdivisions (must be positive).
+     * @return The approximate value of the integral, or NAN if an error occurs.
+     */
+    double trapezoidal_rule(CallbackFunction callback, double a, double b, int n) {
+        if (n <= 0) {
+            std::cerr << "Error: Number of subdivisions must be positive. Received n = " << n << std::endl;
+            return NAN;
+        }
+
+        if (callback == nullptr) {
+            std::cerr << "Error: Callback function is null." << std::endl;
+            return NAN;
+        }
+
+        double h = (b - a) / n;  // Step size
+        double integral = 0.0;
+
+        // Pre-check for divide by zero in endpoints
+        if (a == 0 || b == 0) {
+            std::cerr << "Error: Divide by zero detected at endpoint(s) a or b." << std::endl;
+            return NAN;
+        }
+
+        // Check and evaluate endpoints
+        try {
+            double fa = callback(a);
+            double fb = callback(b);
+
+            // Check for NAN or infinity
+            if (std::isnan(fa) || std::isnan(fb)) {
+                std::cerr << "Error: Endpoint evaluations are invalid (NAN)." << std::endl;
+                return NAN;
+            }
+            if (std::isinf(fa) || std::isinf(fb)) {
+                std::cerr << "Error: Endpoint evaluations are invalid (infinity)." << std::endl;
+                return NAN;
+            }
+            integral = 0.5 * (fa + fb);  // Contribution from endpoints
+        } catch (const std::exception& e) {
+            std::cerr << "Error: Exception occurred during callback evaluation at endpoints: " << e.what() << std::endl;
+            return NAN;
+        } catch (...) {
+            std::cerr << "Error: Unknown exception occurred during callback evaluation at endpoints." << std::endl;
+            return NAN;
+        }
+
+        // Safely evaluate interior points
+        for (int i = 1; i < n; ++i) {
+            double x_i = a + i * h;
+
+            // Pre-check for divide by zero
+            if (x_i == 0) {
+                std::cerr << "Error: Divide by zero detected at x = " << x_i << std::endl;
+                return NAN;
+            }
+
+            try {
+                double f_xi = callback(x_i);
+
+                // Check for NAN or infinity
+                if (std::isnan(f_xi)) {
+                    std::cerr << "Error: Invalid evaluation at interior point x = " << x_i << std::endl;
+                    return NAN;
+                }
+                if (std::isinf(f_xi)) {
+                    std::cerr << "Error: Function approaches infinity at x = " << x_i << std::endl;
+                    return NAN;
+                }
+                integral += f_xi;  // Sum contributions
+            } catch (const std::exception& e) {
+                std::cerr << "Error: Exception occurred during callback evaluation at x = " << x_i << ": " << e.what() << std::endl;
+                return NAN;
+            } catch (...) {
+                std::cerr << "Error: Unknown exception occurred during callback evaluation at x = " << x_i << std::endl;
+                return NAN;
+            }
+        }
+
+        // Apply step size and return the final integral
+        return h * integral;
+    }
+}
