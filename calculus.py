@@ -630,3 +630,105 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
+
+def evaluate_integrals():
+    """
+    Evaluate integrals of the three given functions using various integration methods.
+    Compare accuracies and efficiencies for each method.
+
+    Functions:
+        func1: exp(-1/x)
+        func2: cos(1/x)
+        func3: x^3 + 1
+
+    Methods:
+        Adaptive Trapezoidal, Numpy Trapezoidal, Scipy Trapezoidal
+
+    This function prints the results for each function and compares the accuracy and efficiency
+    of the different methods.
+    """
+    functions = {
+        "exp(-1/x)": (func1, 0.000001, 10),  # Avoiding singularity at x=0
+        "cos(1/x)": (func2, 0.000001, 3 * np.pi),  # Avoiding singularity at x=0
+        "x^3+1": (func3, -1, 1)
+    }
+
+    integration_params = {
+        "tol": 1e-6,
+        "max_depth": 10,
+        "steps": 10000,
+    }
+
+    # Define a reusable method for measuring performance and storing results
+    def measure_performance(current_results, method_name, method_function, *args):
+        start_time = time.time()
+        result = method_function(*args)
+        elapsed_time = time.time() - start_time
+        current_results[method_name] = {
+            "result": result,
+            "time": elapsed_time
+        }
+
+    # Loop through each function and calculate the integral using different methods
+    for name, (func, lower, upper) in functions.items():
+        print(f"\nEvaluating integral for {name} over [{lower}, {upper}]:")
+        
+        # Create a new dictionary to store results in each loop iteration
+        current_results = {}
+
+        # Evaluate using various methods
+        measure_performance(
+            current_results,
+            "Adaptive Trapezoidal",
+            adaptive_trap_py,
+            func,
+            lower,
+            upper,
+            integration_params["tol"],
+            integration_params["max_depth"],
+        )
+
+        measure_performance(
+            current_results,
+            "Numpy Trapezoidal",
+            trapezoid_numpy,
+            func,
+            lower,
+            upper,
+            integration_params["steps"],
+        )
+
+        measure_performance(
+            current_results,
+            "Scipy Trapezoidal",
+            trapezoid_scipy,
+            func,
+            lower,
+            upper,
+            integration_params["steps"],
+        )
+
+        # Assume the result from Scipy as the benchmark for accuracy comparison
+        true_value = current_results["Scipy Trapezoidal"]["result"]
+
+        # Compare and print results
+        for method, data in current_results.items():
+            approx_value = data["result"]
+            time_taken = data["time"]
+
+            # Calculate the error and number of correct digits
+            error = abs(true_value - approx_value)
+            correct_digits = -np.log10(error) if error > 0 else None
+
+            if isinstance(correct_digits, float):
+                correct_digits = int(correct_digits)
+                
+            # Print the results for each method
+            print(f"\nMethod: {method}")
+            print(f"Result: {approx_value:.6f}")
+            print(f"Time Taken: {time_taken:.6f} seconds")
+            print(f"Error: {error:.6e}")
+            
+            # Only print correct digits if available
+            if correct_digits is not None:
+                print(f"Correct Digits: {correct_digits}")
