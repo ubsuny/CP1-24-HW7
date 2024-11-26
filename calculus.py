@@ -163,12 +163,6 @@ def func3(x):
     """
     return x**3+1
 
-def d3(x):
-    """
-    d3 is the second derivative of 
-    function func3
-    """
-    return 6*x
 
 def func1(x):
     """
@@ -177,12 +171,7 @@ def func1(x):
     """
     return np.exp(-1/x)
 
-def d1(x):
-    """
-    d1 is the second derivative of 
-    function func1
-    """
-    return (1/x**2)*np.exp(-1/x)
+
 
 def func2(x):
     """
@@ -191,22 +180,20 @@ def func2(x):
     """
     return np.cos(1/x)
 
-def d2(x):
+
+def sec_derivative(func, x,dx):
     """
-    d2 is the second derivative of 
-    function func2
+    This function takes the second derivative of a function
+    for all points x.
     """
-    return (-1/x**2)*np.cos(1/x)
+    return np.gradient(np.gradient(func(x),dx),dx)
 
 def adapt(func, bounds, d, sens):
     """
     adapt uses adaptive trapezoidal integration
     to integrate a function over boundaries.
-    func must be a str defining the function
-    to be integrated. May be:
-    x^3+1
-    exp(-1/x)
-    cos(1/x)
+    func must be function which outputs a list
+    of its values.
     bounds is a list of length two which defines
     the lower and upper bounds of integration
     d defines the number of points between
@@ -216,17 +203,11 @@ def adapt(func, bounds, d, sens):
     how the function changes. 
     """
     #The x is defined as a linspace which is used to define
-    #the derivative of the function for each point x
+    #the second derivative of the function for each point x
     #between the bounds
     x=np.linspace(bounds[0], bounds[1], d+1)
     dx=x[1]-x[0]
-    dydx=0
-    if func=="x^3+1":
-        dydx=d3(x)
-    elif func=="exp(-1/x)":
-        dydx=d1(x)
-    elif func=="cos(1/x)":
-        dydx=d2(x)
+    d2ydx2=sec_derivative(func,x,dx)
 
     loopx=enumerate(x)
     summer=0
@@ -238,16 +219,11 @@ def adapt(func, bounds, d, sens):
     #the total integral.
     for count, val in loopx:
         if count!=len(x)-1:
-            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*dydx[count]))+1))
-            new_y=[]
-            if func=="x^3+1":
-                new_y=func3(new_x)
-            elif func=="exp(-1/x)":
-                new_y=func1(new_x)
-            elif func=="cos(1/x)":
-                new_y=func2(new_x)
-            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
+            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*d2ydx2[count]))+1))
+            new_y=func(new_x)
+            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*d2ydx2[count]))+1))-1))
     return summer
+
 
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
