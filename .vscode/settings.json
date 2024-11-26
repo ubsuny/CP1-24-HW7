@@ -7,6 +7,9 @@
         "*.tcc": "cpp",
         "cctype": "cpp",
         "clocale": "cpp",
+
+        "cmath": "cpp",
+
         "cstdarg": "cpp",
         "cstddef": "cpp",
         "cstdint": "cpp",
@@ -15,6 +18,9 @@
         "cwchar": "cpp",
         "cwctype": "cpp",
         "deque": "cpp",
+
+        "list": "cpp",
+
         "unordered_map": "cpp",
         "vector": "cpp",
         "exception": "cpp",
