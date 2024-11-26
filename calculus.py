@@ -5,7 +5,9 @@ This module implements different integration and root finding algorithms
 import os
 import ctypes
 import math
+import time
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy import optimize
 import scipy as sp
 from scipy.integrate import simpson
@@ -222,12 +224,6 @@ def func3(x):
     """
     return x**3+1
 
-def d3(x):
-    """
-    d3 is the second derivative of 
-    function func3
-    """
-    return 6*x
 
 def func1(x):
     """
@@ -236,12 +232,7 @@ def func1(x):
     """
     return np.exp(-1/x)
 
-def d1(x):
-    """
-    d1 is the second derivative of 
-    function func1
-    """
-    return (1/x**2)*np.exp(-1/x)
+
 
 def func2(x):
     """
@@ -250,22 +241,20 @@ def func2(x):
     """
     return np.cos(1/x)
 
-def d2(x):
+
+def sec_derivative(func, x,dx):
     """
-    d2 is the second derivative of 
-    function func2
+    This function takes the second derivative of a function
+    for all points x.
     """
-    return (-1/x**2)*np.cos(1/x)
+    return np.gradient(np.gradient(func(x),dx),dx)
 
 def adapt(func, bounds, d, sens):
     """
     adapt uses adaptive trapezoidal integration
     to integrate a function over boundaries.
-    func must be a str defining the function
-    to be integrated. May be:
-    x^3+1
-    exp(-1/x)
-    cos(1/x)
+    func must be function which outputs a list
+    of its values.
     bounds is a list of length two which defines
     the lower and upper bounds of integration
     d defines the number of points between
@@ -275,17 +264,11 @@ def adapt(func, bounds, d, sens):
     how the function changes. 
     """
     #The x is defined as a linspace which is used to define
-    #the derivative of the function for each point x
+    #the second derivative of the function for each point x
     #between the bounds
     x=np.linspace(bounds[0], bounds[1], d+1)
     dx=x[1]-x[0]
-    dydx=0
-    if func=="x^3+1":
-        dydx=d3(x)
-    elif func=="exp(-1/x)":
-        dydx=d1(x)
-    elif func=="cos(1/x)":
-        dydx=d2(x)
+    d2ydx2=sec_derivative(func,x,dx)
 
     loopx=enumerate(x)
     summer=0
@@ -297,16 +280,11 @@ def adapt(func, bounds, d, sens):
     #the total integral.
     for count, val in loopx:
         if count!=len(x)-1:
-            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*dydx[count]))+1))
-            new_y=[]
-            if func=="x^3+1":
-                new_y=func3(new_x)
-            elif func=="exp(-1/x)":
-                new_y=func1(new_x)
-            elif func=="cos(1/x)":
-                new_y=func2(new_x)
-            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*dydx[count]))+1))-1))
+            new_x=np.linspace(val, x[count+1], 2*(int(np.abs(sens*d2ydx2[count]))+1))
+            new_y=func(new_x)
+            summer+=a_trap(new_y, dx/((2*(int(np.abs(sens*d2ydx2[count]))+1))-1))
     return summer
+
 
 def trapezoid_numpy(func, l_lim, u_lim, steps=10000):
     '''
@@ -692,6 +670,7 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "converged": False,
         "iterations": maxiter}
 
+
 def ctypes_stub():
     """    
     This method demonstrates the usage of a ctypes wrapper to interact with a C++
@@ -703,7 +682,8 @@ def ctypes_stub():
     NAN for invalid input.
     """
     # Load the DLL
-    dll = ctypes.CDLL("./calculus.dll")
+    dll = ctypes.CDLL("./lib_calculus.so")
+
 
     # Define function signatures
     dll.verify_arguments.argtypes = [ctypes.c_double]
@@ -741,20 +721,80 @@ def ctypes_stub():
         # Exception for type mismatch errors
         print(f"Type error: {e}")
 
+def ctypes_invoke_with_floats(callback, a, b):
+    """
+    Calls the C++ function invoke_with_floats, passing a Python callback function
+    and two float arguments.
+
+    Parameters:
+        callback (function): A Python function that takes one float argument and returns a float.
+        a (float): The first float input.
+        b (float): The second float input.
+
+    Returns:
+        float: The result of the callback applied to (a + b).
+    """
+    # Load the DLL
+    lib_path = "./lib_calculus.so"  # Ensure the correct library file name and path
+    calculus = ctypes.CDLL(lib_path)
+    # Define ctypes function signature if not already defined
+    callback_function = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+    calculus.invoke_with_floats.argtypes = [callback_function, ctypes.c_double, ctypes.c_double]
+    calculus.invoke_with_floats.restype = ctypes.c_double
+
+    # Wrap the Python callback with ctypes
+    wrapped_callback = callback_function(callback)
+    return calculus.invoke_with_floats(wrapped_callback, a, b)
+
+def secant_root(callback, x0, x1, tol, max_iter):
+    """
+    Finds the root of a function using the secant method.
+
+    Parameters:
+        callback (function): A Python function representing the equation f(x).
+        x0 (float): The first initial guess for the root.
+        x1 (float): The second initial guess for the root.
+        tol (float): The tolerance for convergence.
+        max_iter (int): The maximum number of iterations allowed.
+
+    Returns:
+        float: The approximate root if convergence is achieved; otherwise, NAN.
+    """
+    # Load the shared library
+    lib_path = "./lib_calculus.so"  # Ensure the correct library file name and path
+    calculus = ctypes.CDLL(lib_path)
+
+    # Define the ctypes callback function type
+    callback_function = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+
+    # Define the argument and return types for the secant_root function
+    calculus.secant_root.argtypes = [
+        callback_function,
+        ctypes.c_double,
+        ctypes.c_double,
+        ctypes.c_double,
+        ctypes.c_int,
+    ]
+    calculus.secant_root.restype = ctypes.c_double
+
+    # Wrap the Python callback function
+    wrapped_callback = callback_function(callback)
+
+    # Invoke the C++ function and return the result
+    return calculus.secant_root(wrapped_callback, x0, x1, tol, max_iter)
+
 def calculate_integrals():
     """
     Calculate integrals of the three given functions using all available algorithms.
     Print the results for each function and algorithm.
     """
     print("Calculating integrals for all functions using all algorithms...\n")
-
     # List of functions and their integration intervals
     functions = [
         (func1, "exp(-1/x)", 0.01, 10),
         (func2, "cos(1/x)", 0.01, 3 * np.pi),
         (func3, "x³ + 1", -1, 1)
     ]
-
     # Algorithms to use
     algorithms = {
         "Simpson's Rule": lambda f, a, b: wrapper_simpson(f, a, b, 1000),
@@ -782,3 +822,186 @@ def calculate_integrals():
 
 if __name__ == "__main__":
     calculate_integrals()
+
+def evaluate_integrals():
+    """
+    Evaluate integrals of predefined functions using multiple methods and compare results.
+
+    Returns:
+        dict: A dictionary with the integration results for each function.
+    """
+    def integrate_and_compare(func, lower, upper):
+        """Integrate using multiple methods and compare results."""
+        methods = [
+            ("Adaptive Trapezoidal", adaptive_trap_py,
+             (func, lower, upper, 1e-6, 10)),
+            ("Numpy Trapezoidal", trapezoid_numpy,
+             (func, lower, upper, 10000)),
+            ("Scipy Trapezoidal", trapezoid_scipy,
+             (func, lower, upper, 10000)),
+        ]
+        results = {}
+        for method_name, method_function, args in methods:
+            start = time.time()
+            results[method_name] = {
+                "result": method_function(*args),
+                "time": time.time() - start,
+            }
+
+        # Use Scipy as benchmark and compare methods
+        benchmark = results["Scipy Trapezoidal"]["result"]
+        for method, data in results.items():
+            error = abs(benchmark - data["result"])
+            correct_digits = -np.log10(error) if error > 0 else None
+            print(
+                f"\nMethod: {method}\n"
+                f"Result: {data['result']:.6f}\n"
+                f"Time: {data['time']:.6f} seconds\n"
+                f"Error: {error:.6e}\n"
+                f"Correct Digits: {int(correct_digits) if correct_digits else 'N/A'}"
+            )
+
+        return results
+
+    return {
+        name: integrate_and_compare(func, lower, upper)
+        for name, (func, lower, upper) in {
+            "exp(-1/x)": (func1, 1e-6, 10),
+            "cos(1/x)": (func2, 1e-6, 3 * np.pi),
+            "x^3+1": (func3, -1, 1),
+        }.items()
+    }
+
+# Define the functions
+# -------------------------------------------------------------------------------
+def func_1_safe(x):
+    """
+    y(x) = 1/sin(x) with singularities handled.
+    """
+    epsilon = 1e-6  # Threshold to avoid singularity
+    sin_x = math.sin(x)
+    if abs(sin_x) < epsilon:
+        raise ValueError(f"Singularity detected near x = {x}")
+    return 1 / sin_x
+
+def func_2(x):
+    """
+    y(x) = tanh(x).
+    """
+    return np.tanh(x)
+
+def func_3(x):
+    """
+    y(x) = sin(x).
+    """
+    return math.sin(x)
+
+# Calculate the accuracy of roots
+# ---------------------------------------------------------------------------------
+def calculate_accuracy(approx, true_root):
+    """
+    Calculate the number of correct decimal digits in the approximation of the root.
+    """
+    if approx is None or true_root is None:
+        return 0
+    if approx == 0 and true_root == 0:
+        return float('inf')  # Perfect match for zero roots
+    try:
+        return -int(math.log10(abs(approx - true_root)))
+    except ValueError:
+        return 0
+
+# Function to apply the root finding methods
+# --------------------------------------------------------------------------------
+def apply_methods(func, interval, description, true_root=None, filename=None):
+    """
+    Apply root-finding methods to the function over a specified interval.
+    """
+    print(f"\nFinding roots for {description}")
+    a, b = interval
+    roots = []  # To store all found roots
+
+    # Define the root-finding methods
+    methods = [
+        {"name": "Secant (scipy)", "func": secant_wrapper},
+        {"name": "Bisection (scipy)", "func": bisection_wrapper},
+        {"name": "Bisection (pure Python)", "func": bisection_pure_python},
+        {"name": "Secant (pure Python)", "func": secant_pure_python},
+    ]
+
+    # Iterate over the methods and apply them
+    for method in methods:
+        try:
+            result = method["func"](func, a, b)
+            root = result if isinstance(result, (float, int)) else result.get('root')
+            if root is not None:
+                roots.append(root)
+            accuracy = calculate_accuracy(root, true_root)
+            if isinstance(result, dict):  # Check if method returns a dict
+                print(
+                    f"{method['name']} root: {root} | Converged: {result.get('converged', 'N/A')} |"
+                    f"Accuracy: {accuracy} digits"
+                )
+            else:
+                print(f"{method['name']} root: {root} | Accuracy: {accuracy} digits")
+        except ValueError as e:
+            print(f"{method['name']} error: {e}")
+
+    # Remove None values and duplicates from the roots list
+    roots = list(set(filter(lambda x: x is not None, roots)))
+
+    # Optionally plot the function with identified roots
+    if filename:
+        plot_function_with_roots(func, interval, roots, filename, description)
+
+    return roots
+
+# Plot functions, mark roots, and save as png file
+# --------------------------------------------------------------------------------
+def plot_function_with_roots(func, interval, roots, filename, description):
+    """
+    Plot the function over the given interval and mark the roots found.
+    """
+    x = np.linspace(interval[0], interval[1], 1000)
+    y = np.array([func(val) for val in x])
+
+    # Set up the plot
+    plt.figure(figsize=(10, 6))
+    plt.plot(x, y, label=f"{description}", color="blue")
+    plt.axhline(0, color='red', linestyle='--', label="y=0")
+
+    # Mark roots
+    if roots:
+        for root in roots:
+            plt.plot(root, func(root), 'o', label=f"Root at x={root:.4f}", markersize=8)
+    else:
+        print("No valid roots found to mark on the plot.")
+
+    # Generate the plot
+    plt.title(f"Function: {description}")
+    plt.xlabel("x")
+    plt.ylabel("y(x)")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(filename)
+    plt.close()
+    print(f"Plot saved as {filename}")
+
+# Main function
+# --------------------------------------------------------------------------------
+def find_roots():
+    """
+    Main function to find roots for multiple functions using various methods and compare accuracies.
+    """
+    # Root finding for y(x) = 1/sin(x) with singularities handled
+    apply_methods(func_1_safe, (0.5, 1.5), "y(x) = 1/sin(x) (singularities handled)",
+                  filename="root_1_sinx.png")
+
+    # Root finding for y(x) = tanh(x)
+    apply_methods(func_2, (-1, 1), "y(x) = tanh(x)", true_root=0.0, filename="root_tanhx.png")
+
+    # Root finding for y(x) = sin(x)
+    apply_methods(func_3, (3, 4), "y(x) = sin(x)", true_root=math.pi, filename="root_sinx.png")
+
+if __name__ == "__main__":
+    find_roots()
