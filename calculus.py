@@ -2,6 +2,7 @@
 calculus.py
 This module implements different integration and root finding algorithms
 """
+import os
 import ctypes
 import math
 import time
@@ -76,8 +77,9 @@ def simpsons_rule(func, a, b, n):
     integral *= h / 3
     return integral
 
+#pylint: disable=C0302
 # Function that uses the tangent method for root-finding
-def root_tangent(function, fprime, x0):
+def root_tangent(function, fprime, x0, tolerance = 1e-6, maxiterations = 1000):
     """
     A function that takes a function, its derivative, and an initial guess
     to estimate the root closest to that initial guess
@@ -91,7 +93,7 @@ def root_tangent(function, fprime, x0):
     Outputs:
     (number): the desired root (zero) of the function
     """
-    return optimize.newton(function, x0, fprime)
+    return optimize.newton(function, x0, fprime, tol = tolerance, maxiter = maxiterations)
 
 def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
     """
@@ -146,6 +148,66 @@ def tangent_pure_python(func, fprime, x0, tol=1e-6, maxiter=50):
         "converged": False,
         "iterations": maxiter,
         "message": "Maximum iterations reached without convergence."}
+
+# Create the DLL
+os.system("gcc -shared -o tangent_root_finder.dll -fPIC tangent_root_finder.cpp")
+# Loading the DLL
+root_cpp = ctypes.CDLL("./tangent_root_finder.dll")
+# Defining the python-equivalent data types
+class Result(ctypes.Structure):
+    """
+    A python-equivalent structure to the c structure implementation
+    """
+    _fields_ = [
+        ("converged", ctypes.c_bool),
+        ("root", ctypes.c_double),
+        ("p_root", ctypes.c_double),
+        ("p_iter", ctypes.c_int),
+    ]
+    # Placeholder methods to avoid the linting complaining
+    def to_dict(self):
+        """Convert the result to a dictionary."""
+        return {"converged": self.converged, "root": self.root}
+    def to_list(self):
+        """Convert the result to a list."""
+        return [self.converged, self.root]
+FUNC_TYPE = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+# Defining the function signatures
+root_cpp.cpp_root_tangent.argtypes = [FUNC_TYPE, FUNC_TYPE,
+                                 ctypes.c_double, ctypes.c_double, ctypes.c_int]
+root_cpp.cpp_root_tangent.restype = Result
+
+def cpp_root_tangent(py_func, py_fprime, x0, tol = 1e-6, maxiter = 100):
+    """
+    C/C++ implementation for the root finding algorithm using the 
+    Newton-Raphson (tangent) method
+
+    Parameters:
+    Inputs:
+    py_func (python function): The function for which to find the root
+    py_fprime (python function): The derivative of the function
+    x0 (number): the initial guess
+    tol (number): a tolerance for the accepted values
+    maxiter (number): the max number of iterations before the algorithm terminates
+    Outputs:
+    result (class [c structure]): contains information about the convergence and the root
+    """
+    try:
+        c_func = FUNC_TYPE(py_func)
+        c_fprime = FUNC_TYPE(py_fprime)
+    except Exception as e:
+        raise TypeError("py_func and py_fprime must be callable functions.") from e
+    c_guess = ctypes.c_double(x0)
+    c_tol = ctypes.c_double(tol)
+    c_iter = ctypes.c_int(maxiter)
+    result = root_cpp.cpp_root_tangent(c_func, c_fprime, c_guess, c_tol, c_iter)
+    print(result.root)
+    try:
+        if not result.converged:
+            raise RuntimeError(f"Root finding did not converge within {maxiter} iterations.")
+    except RuntimeError as e:
+        raise e
+    return result
 
 def a_trap(y, d):
     """

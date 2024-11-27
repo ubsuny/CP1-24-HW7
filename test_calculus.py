@@ -106,7 +106,8 @@ def func_1(x):
     Outputs:
     (number): the value of the function
     """
-    return x ** 2
+    return x ** 3 - 4 * x + 1
+
 def func_1_prime(x):
     """
     A simple function to be used for testing
@@ -116,7 +117,8 @@ def func_1_prime(x):
     Outputs:
     (number): the value of the derivative of func_1
     """
-    return 2 * x
+    return 3 * x ** 2 - 4
+
 def exp_minus_one_by_x(x):
     '''
     defining a function that raises divide by zero at x=0
@@ -142,12 +144,11 @@ def test_root_tangent(initial_guess_1):
     A function that tests the wrapper implementation for tangent method for root-finding
     Parameters:
     Inputs:
-    func_1 (function): the function to find its root
-    func_1_prime (function): the derivative of the function
-    x_0 (number): the initial guess for the root
+    initial_guess_1 (number): the initial guess for the root
     """
     compare = calc.root_tangent(func_1, func_1_prime, initial_guess_1)
-    assert np.isclose(compare, 0.0, atol = 1.0e-6)
+    assert np.isclose(compare, 0.2541016883651, atol = 1.0e-6)
+
 def test_convergence_tangent():
     """
     Test the tangent_pure_python function for convergence to a positive root.
@@ -234,6 +235,40 @@ def test_zero_root_tangent():
     result = calc.tangent_pure_python(func, fprime, x0=0.1, maxiter=100)
     assert result['converged'] is True, "Method did not converge"
     assert pytest.approx(result['root'], abs=1e-5) == 0, f"Expected 0, but got {result['root']}"
+
+def test_cpp_root_tangent(initial_guess_1):
+    """
+    A function that tests the cpp implementation for tangent method for root-finding
+
+    Parameters:
+    Inputs:
+    initial_guess_1 (number): the initial guess for the root
+    """
+    compare = calc.cpp_root_tangent(func_1, func_1_prime, initial_guess_1).root
+    assert np.isclose(compare, 0.2541016883651, atol = 1.0e-6)
+
+def test_cpp_root_tangent_callability(initial_guess_1):
+    """
+    A function that tests the cpp implementation for tangent method for root-finding
+
+    Parameters:
+    Inputs:
+    initial_guess_1 (number): the initial guess for the root
+    """
+    with pytest.raises(TypeError, match="py_func and py_fprime must be callable functions."):
+        calc.cpp_root_tangent(1, "s", initial_guess_1)
+
+def test_cpp_root_tangent_convergence(initial_guess_1):
+    """
+    A function that tests the cpp implementation for tangent method for root-finding
+
+    Parameters:
+    Inputs:
+    initial_guess_1 (number): the initial guess for the root
+    """
+    with pytest.raises(RuntimeError, match="Root finding did not converge within 3 iterations."):
+        calc.cpp_root_tangent(func_1, func_1_prime, initial_guess_1, maxiter = 3)
+
 def test_trapezoid_numpy():
     '''
     Unit test for numpy implementation of trapezoid method
