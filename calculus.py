@@ -77,6 +77,7 @@ def simpsons_rule(func, a, b, n):
     integral *= h / 3
     return integral
 
+#pylint: disable=C0302
 # Function that uses the tangent method for root-finding
 def root_tangent(function, fprime, x0, tolerance = 1e-6, maxiterations = 1000):
     """
