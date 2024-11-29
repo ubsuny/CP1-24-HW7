@@ -3,6 +3,7 @@ calculus.py
 This module implements different integration and root finding algorithms
 """
 import os
+import platform
 import ctypes
 import math
 import time
@@ -625,6 +626,63 @@ def bisection_pure_python(func, a, b, tol=1e-6, max_iter=1000):
 
     return root
 
+# Load the compiled shared library for bisection
+lib_name = {
+    "Windows": "bisection.dll",
+    "Linux": "libbisection.so",
+    "Darwin": "libbisection.dylib",
+}.get(platform.system())
+lib_file_path = os.path.join(os.getcwd(), lib_name)
+bisection_lib = ctypes.CDLL(lib_file_path)
+
+# Define the function prototype
+bisection_lib.bisection_ctypes.argtypes = [
+    ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double),  # Function pointer for func
+    ctypes.c_double,  # Lower bound
+    ctypes.c_double,  # Upper bound
+    ctypes.c_double,  # Tolerance
+    ctypes.c_int      # Maximum iterations
+]
+bisection_lib.bisection_ctypes.restype = ctypes.c_double
+
+def bisection_ctypes(func, a, b, tol=1e-6, max_iterations=100):
+    """
+    Finds a root of a function using the bisection method implemented in C++.
+
+    This Python function integrates with a C++ shared library via ctypes to
+    perform the bisection root-finding algorithm.
+
+    Parameters:
+    ----------
+    func: A Python function representing f(x). This function should accept a single 
+        float and return a float value.
+    a: The lower bound of the interval where the root is located.
+    b: The upper bound of the interval where the root is located.
+    tol (optional): The tolerance for stopping the algorithm (default is 1e-6).
+    max_iterations (optional): The maximum number of iterations to perform before 
+        raising an error (default is 100).
+
+    Returns: The approximated root of the function within the given interval.
+
+    Raises:
+    ------
+    ValueError: If the signs of func(a) and func(b) are not opposite, indicating no 
+        root in the interval.
+    RuntimeError: If the maximum number of iterations is exceeded during the computation.
+    """
+
+    # Convert Python function to CPP function pointer
+    cpp_func = ctypes.CFUNCTYPE(ctypes.c_double, ctypes.c_double)
+
+    def c_func_wrapper(x):
+        return func(x)
+
+    c_func = cpp_func(c_func_wrapper)
+
+    # Call the C++ function
+    root = bisection_lib.bisection_ctypes(c_func, a, b, tol, max_iterations)
+    return root
+
 def secant_pure_python(func, x0, x1, args=(), maxiter=50):
     """
     Pure Python method for the secant method of root finding.
@@ -670,7 +728,6 @@ def secant_pure_python(func, x0, x1, args=(), maxiter=50):
         "root": None,
         "converged": False,
         "iterations": maxiter}
-
 
 def ctypes_stub():
     """    
