@@ -626,7 +626,7 @@ def bisection_pure_python(func, a, b, tol=1e-6, max_iter=1000):
 
     return root
 
-# Load the compiled shared library for bisection 
+# Load the compiled shared library for bisection
 lib_name = {
     "Windows": "bisection.dll",
     "Linux": "libbisection.so",
