@@ -105,10 +105,10 @@ Review each others PR.
 | Shared project points            |                |              |            |
 | \# Milestones                    | 12             | 1/4          | 3          |
 |                                  |                |              |            |
-| Total                            |                |              | 23         |
+| Total                            |                |              | 25         |
 |                                  |                |              |            |
 |                                  |                |              |            |
 | Result                           |                |              |            |
-| Task completion                  |                |              | 19         |
+| Task completion                  |                |              | 17         |
 |                                  |                |              |            |
 | Sum                              |                |              | 42         |
